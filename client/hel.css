@@ -1,0 +1,196 @@
+/* CSS declarations go here */
+body {
+	background: #fff;
+	color: #000;
+	padding: 140px 20px 20px;
+	margin: 0;
+	overflow-y: scroll;
+}
+
+* {
+	font-family: "Trebuchet MS", "Bitstream Vera Sans", verdana, lucida, arial, helvetica, sans-serif;
+}
+
+h4, h3, h2, h1 {
+	margin: 0;
+}
+
+#header {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	background: linear-gradient(#666, #000);
+	padding: 10px 10px 0;
+}
+
+#header > h1 {
+	text-align: center;
+	margin-bottom: 5px;
+	color: gold;
+}
+
+#header > h4 {
+	text-align: center;
+	font-weight: normal;
+	color: silver;
+	font-style: italic;
+}
+
+#menu {
+	display: inline-block;
+	list-style-type: none;
+	padding: 0;
+	margin: 20px 0 0;
+}
+
+#menu > li {
+	display: inline-block;
+	width: 200px;
+	background: #ccc;
+	padding: 5px;
+	text-align: center;
+	border: 1px solid #666;
+	border-bottom: none;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+
+#menu > li._selected {
+	background: #fff;
+}
+
+#menu > li > a {
+	display: inline-block;
+	width: 100%;
+	color: #000;
+	text-decoration: none;
+}
+
+#login-buttons {
+	color: #fff;
+}
+
+section {
+	border-top: 1px solid #ccc;
+	border-left: 1px solid #ccc;
+	padding: 5px 20px;
+	border-top-left-radius: 10px;
+	margin: 0 0 20px;
+	background: radial-gradient(ellipse farthest-side at top left, #ccc, #fff);
+}
+
+section h3 {
+	margin: 10px 0;
+	font-size: 14pt;
+}
+
+section h4 {
+	font-weight: normal;
+	font-style: italic;
+	margin: 10px 20px;
+	color: #333;
+	font-size: 12pt;
+}
+
+section label,
+section select,
+section input {
+	font-size: 10pt;
+}
+
+section div {
+	margin: 20px;
+}
+
+section textarea {
+	width: 100%;
+	height: 400px;
+}
+
+section button {
+	height: 30px;
+	width: 200px;
+	font-size: 12pt;
+	display: inline-block;
+}
+
+#mapContainer {
+	width: 500px;
+	border: 2px solid #666;
+	margin: 0 auto;
+	background: lightblue;
+	background: #f1f1d4;
+	padding: 10px;
+	border-radius: 10px;
+}
+
+#map .region {
+	fill-opacity: 0.5;
+	stroke-width: 1;
+	stroke: #666;
+}
+
+#map .region[data-owned="1"] {
+	fill-opacity: 1;
+	stroke: #000;
+}
+
+#map .region[data-attackable] {
+	cursor: pointer;
+}
+
+#map .region[data-attackable]:hover {
+	stroke: red;
+	stroke-width: 3;
+}
+
+#map .region[data-attacking="1"] {
+	stroke-width: 3;
+	stroke: red;
+	/*fill-opacity: 1;*/
+}
+
+.battles td:nth-child(1) {
+	width: 100px;
+	font-style: italic;
+	padding-left: 20px;
+}
+
+.battles td:nth-child(2) {
+	width: 10px;
+}
+
+.battles td:nth-child(3) {
+	width: 200px;
+}
+
+.battles td:nth-child(4) {
+	width: 200px;
+}
+
+.colorpicker-element, .colorpicker-element > * {
+	vertical-align: middle;
+}
+
+.colorpicker-element {
+	display: inline-block;
+	margin: 0;
+}
+
+.colorpicker-element > span {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+
+.colorpicker-element > input {
+	width: 60px;
+}
+
+.colorpicker {
+	position: absolute;
+	display: inline-block;
+	border: 1px solid black;
+	background: white;
+}

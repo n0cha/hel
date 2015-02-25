@@ -1,0 +1,15 @@
+{
+  "meteor": {},
+  "dependencies": {
+    "basePackages": {
+      "bootstrap-colorpicker-2": {}
+    },
+    "packages": {
+      "bootstrap-colorpicker-2": {
+        "git": "https://github.com/sclausen/meteor-bootstrap-colorpicker-2.git",
+        "tag": "v0.1.1",
+        "commit": "5252e088e48230c81a7b5f1c4b1afe4fbc674383"
+      }
+    }
+  }
+}

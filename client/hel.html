@@ -1,0 +1,219 @@
+<head>
+	<title>HEL</title>
+</head>
+
+<body>
+<div id="header">
+	<h1>Hilversum Escalation League</h1>
+	<h4>A Warhammer Fantasy Battles Campaign</h4>
+	{{> menu}}
+</div>
+{{renderPage}}
+</body>
+
+<template name="menu">
+
+	<ul id="menu">
+		{{#each menuItems}}
+		<li class="{{selected}}"><a id="{{name}}" href="/{{name}}">{{title}}</a></li>
+		{{/each}}
+	</ul>
+	{{> loginButtons}}
+
+</template>
+
+<template name="home">
+	<p>Welcome to the website for the Hilversum Escalation League.</p>
+
+	<p>This is a meta-game around Warhammer, intended to provide the battles with context, fluff and a Greater
+		Goal.</p>
+
+	<h2>Rules of the Game</h2>
+
+	<p>Players can <a>subscribe</a> through this website. Each player picks an Army, which they will be using throughout
+		the campaign.</p>
+
+	<p>The campaign plays out on a <a>World Map</a>, consisting of Regions. Each player will get 5 adjacent Regions
+		assigned to them at the start of the game.</p>
+
+	<p>Once all players have subscribed, the game starts. The game consists of 5 Rounds.</p>
+
+	<p>Each round, you start by submitting an Army List that you will be using that Round. The point allowance for the
+		army list increases each Round, by increments of 500 points. So, the first round will see 500pts armies, the second
+		round 1000pts, and so on up to 2500pts for the 5th Round. Your Army List will be invisible to the other players
+		until everyone has submitted their list and declared an attack.</p>
+
+	<p>You can also include a complementary Mercenary Force of up to 20% of the points allowance for that Round. This
+		force can consist of units from any army, but must all be from the same army. See <a>Bonuses</a> below for more
+		information.</p>
+
+	<p>After you have submitted an Army List, you can declare your attack for that Round. You do this by going to the <a
+			href="/game">Game page</a> and selecting an
+		enemy Region on the World Map which is adjacent to one of your own Regions.</p>
+
+	<p>Once all players have done this, the Game page will show all the battles that need to be fought. In effect, each
+		player will fight one offensive battle each round and any number of defensive battles. You can make up your
+		own fluff for how it is possible that the same army can be fighting in multiple places at the same time. I don't
+		know, portals or something.</p>
+
+	<p>After a battle has been fought, the result can be submitted to the website. After all battles are fought, the next
+		Round starts.</p>
+
+	<h2>Winning</h2>
+
+	<p>The winner of the campaign is the player who controls the most Regions at the end of Round 5.</p>
+
+	<h2>Bonuses</h2>
+	<dl>
+		<dt>Underdog Support</dt>
+		<dd>At the start of a Round, if you control less Regions than your opponent for a certain battle, you are entitled
+			to deploy your Mercenary Force for that battle. The Game page will indicate this.
+		</dd>
+		<dt>Awe-inspiring Splendor</dt>
+		<dd>If your entire fielded army (including mercenaries if deployed) is painted, you gain a Victory Point bonus of
+			10% of the Point Allowance for that battle.
+		</dd>
+	</dl>
+	
+	<p>For any comments, questions or suggestions regarding these rules, <a href="mailto:hel@richardheuser.nl">e-mail me</a>.</p>
+	<!-- http://www.gameempire.com/forum/index.php?/topic/6638-the-changes-to-magic-in-the-end-times/page__st__20#entry41175 -->
+</template>
+
+<template name="armies">
+	{{#if currentUser}}
+	{{> round}}
+	<section>
+		<h3>Your Army</h3>
+		{{#if gameStarted}}
+		{{armyName}} - {{army}}
+		{{else}}
+		<h4>Note: These can no longer be changed once the game is underway!</h4>
+		<div>
+			<label>Army book:</label>
+			<select id="army">
+				<option value="0">[select your army]</option>
+				{{#each armies}}
+				<option value="{{name}}" {{selected}}>{{name}}</option>
+				{{/each}}
+			</select>
+		</div>
+		<div>
+			<label>Army name:</label>
+			<input id="armyName" value="{{armyName}}">
+		</div>
+		<div>
+			<label>Color:</label>
+			<!--<div id="colorPicker" style="background-color: {{color}};"></div>-->
+			<div id="colorPicker" class="input-group">
+				<span class="input-group-addon"></span>
+				<input type="text" value="{{color}}" class="form-control" />
+			</div>
+		</div>
+		{{/if}}
+	</section>
+	<section>
+		{{#if army}}
+		<h3>Your Army List</h3>
+		{{#if roundPrep}}
+		<div>
+			<textarea id="armyList">{{armyList}}</textarea>
+		</div>
+		<div>
+			<button id="submitArmyList">Submit</button>
+		</div>
+		{{else}}
+		<div class="armyList">{{armyList}}</div>
+		{{/if}}
+		{{/if}}
+	</section>
+	{{else}}
+	<p>You need to be signed in to view this page.</p>
+	{{/if}}
+</template>
+
+<template name="game">
+	{{#if currentUser}}
+	{{> round}}
+	{{> map}}
+	{{> battles}}
+	{{else}}
+	<p>You need to be signed in to view this page.</p>
+	{{/if}}
+</template>
+
+<template name="round">
+	<section id="round">
+		<h3>Round {{number}}</h3>
+		<h4>Point Allowance: {{points}}</h4>
+		<h4>
+			{{#if started}}
+			Round has started
+			{{else}}
+			Preparation Phase - Submit your army list
+			{{/if}}
+		</h4>
+		<div>
+			<button id="resetGame">Reset Game</button>
+			<button id="startRound">Start Round</button>
+			<button id="nextRound">Next Round</button>
+			<button id="createMap">Create Map</button>
+			<button id="populateMap">Populate Map</button>
+		</div>
+	</section>
+</template>
+
+<template name="map">
+	<section>
+		<h3>The Realm</h3>
+		<div id="mapContainer" style="width:{{width}}px;height:{{height}}px;">
+			<svg id="map" width="{{width}}" height="{{height}}">
+				{{#each region}}
+					<polygon class="region" points="{{points}}" fill="{{color}}" data-id="{{id}}" data-owned="{{owned}}" data-attacking="{{attacking}}">
+						{{#if attacking}}
+						<animate id="animation1"
+										 attributeName="fill-opacity"
+										 from="0.5" to="0.25" dur="1s"
+										 begin="0s;animation2.end" />
+						<animate id="animation2"
+										 attributeName="fill-opacity"
+										 from="0.25" to="0.5" dur="1s"
+										 begin="animation1.end" />
+						<animate id="animation3"
+										 attributeName="stroke"
+										 from="red" to="pink" dur="1s"
+										 begin="0s;animation4.end" />
+						<animate id="animation4"
+										 attributeName="stroke"
+										 from="pink" to="red" dur="1s"
+										 begin="animation1.end" />
+						{{/if}}
+					</polygon>
+					<!--<text x="{{anchorX}}" y="{{anchorY}}">{{x}},{{y}}</text>-->
+				{{/each}}
+			</svg>
+		</div>
+	</section>
+</template>
+
+<template name="battles">
+	<section>
+		<h3>Battles</h3>
+	<table class="battles">
+		<tbody>
+			{{#each battles}}
+				<tr>
+					<th colspan="4">Battle of {{region}}</th>
+				</tr>
+				{{#each players}}
+					<tr>
+						<td>{{role}}</td>
+						<td style="background-color: {{color}};"></td>
+						<td>{{armyName}}</td>
+						<td>({{army}})</td>
+					</tr>
+				{{/each}}
+			{{/each}}
+		</tbody>
+	</table>
+	</section>
+</template>
