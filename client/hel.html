@@ -3,13 +3,19 @@
 </head>
 
 <body>
-<div id="header">
-	<h1>Hilversum Escalation League</h1>
-	<h4>A Warhammer Fantasy Battles Campaign</h4>
-	{{> menu}}
-</div>
-{{renderPage}}
+
 </body>
+
+<template name="layout">
+	<div id="header">
+		<h1>Hilversum Escalation League</h1>
+		<h4>A Warhammer Fantasy Battles Campaign</h4>
+		{{> menu}}
+	</div>
+	<div id="content">
+		{{> yield}}
+	</div>
+</template>
 
 <template name="menu">
 
@@ -179,7 +185,7 @@
 <template name="map">
 	<section>
 		<h3>The Realm</h3>
-		<div id="mapContainer" style="width:{{width}}px;height:{{height}}px;">
+		<div id="mapContainer" style="width:{{width}}px;height:{{height}}px;"><div id="mapBox">
 			<svg id="map" width="{{width}}" height="{{height}}">
 				{{#each region}}
 					<g transform="translate({{anchorX}} {{anchorY}})">
@@ -204,14 +210,14 @@
 						{{/if}}
 
 					</polygon>
-					<!--<text x="{{anchorX}}" y="{{anchorY}}">{{x}},{{y}}</text>-->
+					<text x="15" y="30">{{x}},{{y}}</text>
 					{{#if capital}}
 						<image x="14" y="14" width="32" height="32" xlink:href="{{capital}}" />
 					{{/if}}
 					</g>
 				{{/each}}
 			</svg>
-		</div>
+		</div></div>
 	</section>
 </template>
 

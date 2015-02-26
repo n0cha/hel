@@ -1,3 +1,15 @@
+Router.configure({
+	layoutTemplate: 'layout'
+});
+Router.route('/:page', function () {
+	Session.set('currentPage', this.params.page);
+	this.render(this.params.page);
+});
+Router.route('(.*)', function () {
+	Session.set('currentPage', 'home');
+	this.render('home');
+});
+
 var armies = new Meteor.Collection('armies');
 var regions = new Meteor.Collection('regions');
 var rounds = new Meteor.Collection('rounds');
@@ -160,6 +172,11 @@ var Map = {
 	getHeight: function () {
 		return regions.findOne({}, {sort: {y: -1}}).y + 1;
 	},
+	getXMin: function () {
+		return _.map(regions.find().fetch(), function (r) {
+			return (1 - r.y % 2) / 2 + r.x;
+		}).sort().reverse().pop();
+	},
 	depopulate: function (callback) {
 		Meteor.call('depopulateMap', [], callback);
 	},
@@ -253,15 +270,6 @@ var Map = {
 		});
 	}
 };
-
-Router.route('/:page', function () {
-	Session.set('currentPage', this.params.page);
-	this.render(this.params.page);
-});
-Router.route('(.*)', function () {
-	Session.set('currentPage', 'home');
-	this.render('home');
-});
 
 Template.menu.helpers({
 	menuItems: function () {
@@ -418,7 +426,7 @@ var hexHeight = 45;
 
 Template.map.helpers({
 	width: function () {
-		return Map.getWidth() * hexWidth;
+		return (Map.getWidth() - Map.getXMin()) * hexWidth;
 	},
 	height: function () {
 		return Map.getHeight() * hexHeight + hexHeight / 3;
@@ -452,13 +460,12 @@ Template.map.helpers({
 	},
 	anchorX: function () {
 		var y = this.y;
-		var x = this.x * hexWidth;
-		var step = hexWidth / 4;
+		var x = (this.x - Map.getXMin()) * hexWidth;
 		var isEvenRow = !(y % 2);
 		if (isEvenRow) {
-			x += 2 * step;
+			x += hexWidth / 2;
 		}
-		return x/* + hexWidth / 3*/;
+		return x;
 	},
 	anchorY: function () {
 		var y = this.y;
