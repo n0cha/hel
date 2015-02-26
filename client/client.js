@@ -4,18 +4,20 @@ var rounds = new Meteor.Collection('rounds');
 var players = new Meteor.Collection('players');
 var armyLists = new Meteor.Collection('armyLists');
 var battles = new Meteor.Collection('battles');
+var images = new Meteor.Collection('images');
 
 var Player = {
 	_player: undefined,
 	
 	_get: function () {
-		if (!this._player) {
-			if (!players.find().count()) {
-				return {};
-			}
-			this._player = players.findOne({userId: Meteor.userId()});
-		}
-		return this._player || {};
+		return players.findOne({userId: Meteor.userId()}) || {};
+		//if (!this._player) {
+		//	if (!players.find().count()) {
+		//		return {};
+		//	}
+		//	this._player = players.findOne({userId: Meteor.userId()});
+		//}
+		//return this._player || {};
 	},
 	create: function () {
 		this.player = {userId: Meteor.userId(), army: 0};
@@ -72,10 +74,25 @@ var Player = {
 		return Session.get('attackRegionId') || this._get().attack;
 	},
 	getColor: function () {
-		return this._get().color;
+		return this._get().color || 'white';
 	},
 	setColor: function (color) {
 		this._update({color: color});
+	},
+	setIcon: function (data) {
+		var id = this._get().icon;
+		if (id) {
+			images.remove({_id: id});
+		}
+		id = images.insert({data: data});
+		this._update({icon: id});
+	},
+	getIcon: function () {
+		var id = this._get().icon;
+		if (id) {
+			var image = images.findOne({_id: id});
+			return image && image.data;
+		}
 	}
 };
 
@@ -109,6 +126,7 @@ var Map = {
 	},
 	clear: function () {
 		Meteor.call('clearMap');
+		Meteor.call('clearBattles');
 	},
 	create: function () {
 		this.clear();
@@ -174,6 +192,9 @@ var Map = {
 					var index = Math.round(Math.random() * (candidates.length - 1));
 					var region = candidates[index];
 					regions.update(region._id, {$set: {owner: id}});
+					if (!i) {
+						players.update({_id: id}, {$set: {capital: region._id}});
+					}
 				}, this);
 				playerIndex++;
 			}.bind(this));
@@ -273,6 +294,9 @@ Template.round.events({
 	},
 	'click #populateMap': function () {
 		Map.populate();
+	},
+	'click #createPlayer': function () {
+		Player.create();
 	}
 });
 
@@ -302,16 +326,27 @@ Template.armies.helpers({
 		return Round.points();
 	},
 	color: function () {
-		Meteor.defer(function () {
-			$('#colorPicker').colorpicker().on('changeColor.colorpicker', function(event){
-				Player.setColor(event.color.toHex());
-			});
-		});
+		//Meteor.defer(function () {
+		//	$('#colorPicker').colorpicker().on('changeColor.colorpicker', function(event){
+		//		Player.setColor(event.color.toHex());
+		//	});
+		//});
 		return Player.getColor();
+	},
+	icon: function () {
+		return Player.getIcon();
+	},
+	player: function () {
+		return Player.getId();
 	}
 });
 
 Template.armies.rendered = function () {
+};
+
+var prevent = function (e) {
+	e.stopPropagation();
+	e.preventDefault();
 };
 
 Template.armies.events({
@@ -323,6 +358,52 @@ Template.armies.events({
 	},
 	'click #submitArmyList': function (event) {
 		Player.setArmyList($('#armyList').val());
+	},
+	'change #colorPicker': function (event) {
+		Player.setColor(event.target.value);
+	},
+	'dragenter #dropzone': prevent,
+	'dragexit #dropzone': prevent,
+	'dragover #dropzone': prevent,
+	'drop #dropzone': function (e) {
+		prevent(e);
+		if (e.dataTransfer.files.length) {
+			var file = e.dataTransfer.files[0],
+					reader = new FileReader();
+
+			reader.onload = function () {
+				var data = reader.result,
+						parsedData = /^data:([^;]*);base64,(.*)$/.exec(data),
+						mimeType = parsedData[1]
+				;
+
+				if (mimeType.match(/^image\/\w+$/)) {
+					Player.setIcon(data);
+					//$('<img />')
+					//		.attr('src', data)
+					//		.on('load', function () {
+					//			Meteor.defer(function () {
+					//				Player.setIcon(data);
+					//			}.bind(this));
+					//		})
+					//;
+				}
+			};
+
+			reader.readAsDataURL(file);
+		} else {
+			var data = e.dataTransfer.getData('text/html');
+			if (data) {
+				var canvas = $('<canvas>'),
+						image = $(data).get(1);
+				image.onload = function () {
+					canvas.attr('width', image.width);
+					canvas.attr('height', image.height);
+					canvas.get(0).getContext('2d').drawImage(image, 0, 0);
+					Player.setIcon(canvas.get(0).toDataURL());
+				};
+			}
+		}
 	}
 });
 
@@ -347,21 +428,21 @@ Template.map.helpers({
 	},
 	points: function () {
 		var points = [];
-		var y = this.y;
-		var x = this.x * hexWidth;
+		//var y = this.y;
+		//var x = this.x * hexWidth;
 		var step = hexWidth / 4;
-		var isEvenRow = !(y % 2);
-		y *= hexHeight;
-		if (isEvenRow) {
-			x += 2 * step;
-		}
+		//var isEvenRow = !(y % 2);
+		//y *= hexHeight;
+		//if (isEvenRow) {
+		//	x += 2 * step;
+		//}
 
-		points.push([x, y + step]);
-		points.push([x + 2 * step, y]);
-		points.push([x + 4 * step, y + step]);
-		points.push([x + 4 * step, y + 3 * step]);
-		points.push([x + 2 * step, y + 4 * step]);
-		points.push([x, y + 3 * step]);
+		points.push([0, step]);
+		points.push([2 * step, 0]);
+		points.push([4 * step, step]);
+		points.push([4 * step, 3 * step]);
+		points.push([2 * step, 4 * step]);
+		points.push([0, 3 * step]);
 
 		return _(points).map(function (p) {return p.join(',');}).join(' ');
 	},
@@ -377,12 +458,12 @@ Template.map.helpers({
 		if (isEvenRow) {
 			x += 2 * step;
 		}
-		return x + hexWidth / 3;
+		return x/* + hexWidth / 3*/;
 	},
 	anchorY: function () {
 		var y = this.y;
 		y *= hexHeight;
-		return y + hexHeight / 1.5;
+		return y/* + hexHeight / 1.5*/;
 	},
 	id: function () {
 		return this._id;
@@ -395,6 +476,13 @@ Template.map.helpers({
 	},
 	attackable: function () {
 		return _.contains(Player.getAttackableRegions(), this._id);
+	},
+	capital: function () {
+		var player = players.findOne({capital: this._id});
+		if (player) {
+			var icon = images.findOne({_id: player.icon});
+		}
+		return player && icon && icon.data;
 	}
 });
 

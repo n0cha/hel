@@ -151,6 +151,10 @@ section button {
 	/*fill-opacity: 1;*/
 }
 
+.battles th {
+	padding: 20px 0 10px;
+}
+
 .battles td:nth-child(1) {
 	width: 100px;
 	font-style: italic;
@@ -169,6 +173,7 @@ section button {
 	width: 200px;
 }
 
+/*
 .colorpicker-element, .colorpicker-element > * {
 	vertical-align: middle;
 }
@@ -193,4 +198,30 @@ section button {
 	display: inline-block;
 	border: 1px solid black;
 	background: white;
+}
+*/
+
+#icon {
+	display: inline-block;
+	width: 64px;
+	height: 64px;
+	vertical-align: middle;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+#dropzone {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
+	font-weight: bold;
+	width: 64px;
+	height: 40px;
+	border: 2px solid #aaa;
+	border-radius: 5px;
+	text-align: center;
+	color: #aaa;
+	padding: 12px 0;
+	position: relative;
 }

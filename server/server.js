@@ -4,6 +4,7 @@ var rounds = new Meteor.Collection('rounds');
 var players = new Meteor.Collection('players');
 var armyLists = new Meteor.Collection('armyLists');
 var battles = new Meteor.Collection('battles');
+var images = new Meteor.Collection('images');
 
 Meteor.methods({
 	clearMap: function () {
@@ -24,5 +25,8 @@ Meteor.methods({
 	getRegionNames: function (count) {
 		var result = Meteor.http.get('http://donjon.bin.sh/name/rpc.cgi?type=Location&n=' + count);
 		return result && result.content && result.content.split('\n') || [];
+	},
+	clearBattles: function () {
+		battles.remove({});
 	}
 });

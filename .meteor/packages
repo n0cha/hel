@@ -11,4 +11,4 @@ iron:router
 accounts-ui
 accounts-password
 http
-bootstrap-colorpicker-2
+mrt:bootstrap-colorpicker-2

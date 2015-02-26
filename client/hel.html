@@ -81,6 +81,7 @@
 
 <template name="armies">
 	{{#if currentUser}}
+	{{#if player}}
 	{{> round}}
 	<section>
 		<h3>Your Army</h3>
@@ -104,10 +105,21 @@
 		<div>
 			<label>Color:</label>
 			<!--<div id="colorPicker" style="background-color: {{color}};"></div>-->
-			<div id="colorPicker" class="input-group">
+<!--			<div id="colorPicker" class="input-group">
 				<span class="input-group-addon"></span>
 				<input type="text" value="{{color}}" class="form-control" />
+			</div>-->
+			<input id="colorPicker" type="color" value="{{color}}" />
+		</div>
+		<div>
+			<label>Icon:</label>
+			
+			<div id="dropzone">DRAG HERE
+				{{#if icon}}
+					<img id="icon" src="{{icon}}" />
+				{{/if}}
 			</div>
+			<!--<input id="upload" type="file" />-->
 		</div>
 		{{/if}}
 	</section>
@@ -126,6 +138,7 @@
 		{{/if}}
 		{{/if}}
 	</section>
+	{{/if}}
 	{{else}}
 	<p>You need to be signed in to view this page.</p>
 	{{/if}}
@@ -158,6 +171,7 @@
 			<button id="nextRound">Next Round</button>
 			<button id="createMap">Create Map</button>
 			<button id="populateMap">Populate Map</button>
+			<button id="createPlayer">Create Army</button>
 		</div>
 	</section>
 </template>
@@ -168,6 +182,7 @@
 		<div id="mapContainer" style="width:{{width}}px;height:{{height}}px;">
 			<svg id="map" width="{{width}}" height="{{height}}">
 				{{#each region}}
+					<g transform="translate({{anchorX}} {{anchorY}})">
 					<polygon class="region" points="{{points}}" fill="{{color}}" data-id="{{id}}" data-owned="{{owned}}" data-attacking="{{attacking}}">
 						{{#if attacking}}
 						<animate id="animation1"
@@ -187,8 +202,13 @@
 										 from="pink" to="red" dur="1s"
 										 begin="animation1.end" />
 						{{/if}}
+
 					</polygon>
 					<!--<text x="{{anchorX}}" y="{{anchorY}}">{{x}},{{y}}</text>-->
+					{{#if capital}}
+						<image x="14" y="14" width="32" height="32" xlink:href="{{capital}}" />
+					{{/if}}
+					</g>
 				{{/each}}
 			</svg>
 		</div>
