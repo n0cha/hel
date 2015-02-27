@@ -1,5 +1,6 @@
 <head>
 	<title>HEL</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
@@ -10,7 +11,9 @@
 	<div id="header">
 		<h1>Hilversum Escalation League</h1>
 		<h4>A Warhammer Fantasy Battles Campaign</h4>
+		{{> loginButtons}}
 		{{> menu}}
+		<div class="pusher"></div>
 	</div>
 	<div id="content">
 		{{> yield}}
@@ -18,14 +21,11 @@
 </template>
 
 <template name="menu">
-
 	<ul id="menu">
 		{{#each menuItems}}
 		<li class="{{selected}}"><a id="{{name}}" href="/{{name}}">{{title}}</a></li>
 		{{/each}}
 	</ul>
-	{{> loginButtons}}
-
 </template>
 
 <template name="home">
@@ -87,76 +87,102 @@
 
 <template name="armies">
 	{{#if currentUser}}
-	{{#if player}}
-	{{> round}}
+		{{> round}}
+		{{> allArmies}}
+		{{#if gameStarted}}
+		{{else}}
+			{{> armySettings}}
+		{{/if}}
+		{{#if army}}
+			{{> armyList}}
+		{{/if}}
+	{{else}}
+		<p>You need to be signed in to view this page.</p>
+	{{/if}}
+</template>
+
+<template name="allArmies">
+	<section>
+		<h3>Armies</h3>
+		<table class="armies">
+			<tbody>
+			{{#each players}}
+			<tr>
+				<td style="background-color: {{color}};"></td>
+				<td><img class="smallIcon" src="{{icon}}" /></td>
+				<td>{{armyName}}</td>
+				<td>({{army}})</td>
+			</tr>
+			{{/each}}
+			</tbody>
+		</table>
+	</section>
+</template>
+
+<template name="armySettings">
 	<section>
 		<h3>Your Army</h3>
-		{{#if gameStarted}}
-		{{armyName}} - {{army}}
-		{{else}}
-		<h4>Note: These can no longer be changed once the game is underway!</h4>
-		<div>
-			<label>Army book:</label>
-			<select id="army">
-				<option value="0">[select your army]</option>
-				{{#each armies}}
-				<option value="{{name}}" {{selected}}>{{name}}</option>
-				{{/each}}
-			</select>
-		</div>
-		<div>
-			<label>Army name:</label>
-			<input id="armyName" value="{{armyName}}">
-		</div>
-		<div>
-			<label>Color:</label>
-			<!--<div id="colorPicker" style="background-color: {{color}};"></div>-->
-<!--			<div id="colorPicker" class="input-group">
-				<span class="input-group-addon"></span>
-				<input type="text" value="{{color}}" class="form-control" />
-			</div>-->
-			<input id="colorPicker" type="color" value="{{color}}" />
-		</div>
-		<div>
-			<label>Icon:</label>
-			
-			<div id="dropzone">DRAG HERE
-				{{#if icon}}
-					<img id="icon" src="{{icon}}" />
-				{{/if}}
+		{{#if player}}
+			<h4>Note: This can no longer be changed once the game is underway!</h4>
+			<div>
+				<label>Army book:</label>
+				<select id="army">
+					<option value="">[select your army]</option>
+					{{#each armies}}
+					<option value="{{name}}" {{selected}}>{{name}}</option>
+					{{/each}}
+				</select>
 			</div>
-			<!--<input id="upload" type="file" />-->
-		</div>
+			<div>
+				<label>Army name:</label>
+				<input id="armyName" value="{{armyName}}">
+			</div>
+			<div>
+				<label>Color:</label>
+				<input id="colorPicker" type="color" value="{{color}}" />
+			</div>
+			<div>
+				<label>Icon:</label>
+				<div id="dropzone">DRAG HERE
+					{{#if icon}}
+					<img id="icon" src="{{icon}}" />
+					{{/if}}
+				</div>
+				<!--<input id="upload" type="file" />-->
+			</div>
+		{{else}}
+			<button id="createPlayer">Create Army</button>
 		{{/if}}
 	</section>
+</template>
+
+<template name="armyList">
 	<section>
-		{{#if army}}
 		<h3>Your Army List</h3>
 		{{#if roundPrep}}
-		<div>
-			<textarea id="armyList">{{armyList}}</textarea>
-		</div>
-		<div>
-			<button id="submitArmyList">Submit</button>
-		</div>
+			<div>
+				<textarea id="armyList">{{armyList}}</textarea>
+			</div>
+			<div>
+				<button id="submitArmyList">Submit</button>
+			</div>
 		{{else}}
-		<div class="armyList">{{armyList}}</div>
-		{{/if}}
+			<div class="armyList">{{armyList}}</div>
 		{{/if}}
 	</section>
-	{{/if}}
-	{{else}}
-	<p>You need to be signed in to view this page.</p>
-	{{/if}}
 </template>
 
 <template name="game">
 	{{#if currentUser}}
-	{{> round}}
-	{{> map}}
-	{{> battles}}
+		{{> round}}
+		{{#if roundStarted}}
+			{{> battles}}
+		{{/if}}
+		{{#if gameStarted}}
+			{{> map}}
+		{{/if}}
 	{{else}}
-	<p>You need to be signed in to view this page.</p>
+		<p>You need to be signed in to view this page.</p>
 	{{/if}}
 </template>
 
@@ -166,18 +192,22 @@
 		<h4>Point Allowance: {{points}}</h4>
 		<h4>
 			{{#if started}}
-			Round has started
+			Round has started - Fight your battles!
 			{{else}}
-			Preparation Phase - Submit your army list
+			Preparation Phase - {{todo}}
 			{{/if}}
 		</h4>
 		<div>
-			<button id="resetGame">Reset Game</button>
-			<button id="startRound">Start Round</button>
-			<button id="nextRound">Next Round</button>
-			<button id="createMap">Create Map</button>
-			<button id="populateMap">Populate Map</button>
-			<button id="createPlayer">Create Army</button>
+			{{#if number}}
+				<button id="resetGame">Reset Game</button>
+				{{#if started}}
+					<button id="nextRound">Next Round</button>
+				{{else}}
+					<button id="startRound">Start Round</button>
+				{{/if}}
+			{{else}}
+				<button id="startGame">Start Game</button>
+			{{/if}}
 		</div>
 	</section>
 </template>
@@ -210,7 +240,7 @@
 						{{/if}}
 
 					</polygon>
-					<text x="15" y="30">{{x}},{{y}}</text>
+					<!--<text x="15" y="30">{{x}},{{y}}</text>-->
 					{{#if capital}}
 						<image x="14" y="14" width="32" height="32" xlink:href="{{capital}}" />
 					{{/if}}
@@ -218,6 +248,11 @@
 				{{/each}}
 			</svg>
 		</div></div>
+		{{#if attackRegion}}
+			<div id="attack">
+				Attacking: <span class="attackRegion">{{attackRegion}}</span>, owned by: <span class="defenderName" style="color:{{defenderColor}};">{{defenderName}}</span> <span class="defenderArmy">({{defenderArmy}})</span>
+			</div>
+		{{/if}}
 	</section>
 </template>
 

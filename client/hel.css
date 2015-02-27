@@ -7,6 +7,7 @@ body {
 	overflow-y: scroll;
 	font-size: 16px;
 	max-width: 100%;
+	width: 100%;
 }
 
 * {
@@ -47,7 +48,8 @@ h4, h3, h2, h1 {
 	display: inline-block;
 	list-style-type: none;
 	padding: 0;
-	margin: 20px 0 0;
+	margin: 10px 0 0;
+	float: left;
 }
 
 #menu > li {
@@ -102,6 +104,7 @@ section label,
 section select,
 section input {
 	font-size: 75%;
+	vertical-align: middle;
 }
 
 section div {
@@ -169,18 +172,16 @@ section button {
 	/*width: 100px;*/
 	font-style: italic;
 	padding-left: 20px;
+	padding-right: 10px;
 }
 
 .battles td:nth-child(2) {
 	width: 10px;
 }
 
-.battles td:nth-child(3) {
-	/*width: 200px;*/
-}
-
+.battles td:nth-child(3),
 .battles td:nth-child(4) {
-	/*width: 200px;*/
+	padding-left: 10px;
 }
 
 /*
@@ -221,6 +222,13 @@ section button {
 	left: 0;
 }
 
+.smallIcon {
+	display: inline-block;
+	vertical-align: middle;
+	width: 20px;
+	height: 20px;
+}
+
 #dropzone {
 	display: inline-block;
 	margin: 0;
@@ -234,4 +242,43 @@ section button {
 	color: #aaa;
 	padding: 12px 0;
 	position: relative;
+}
+
+#login-buttons {
+	float: right;
+	margin: 20px 10px 0 0;
+}
+
+#login-dropdown-list {
+	left: auto;
+	right: 2px;
+}
+
+.pusher {
+	clear: both;
+}
+
+.armies td:nth-child(1) {
+	width: 10px;
+}
+
+.armies td:nth-child(3),
+.armies td:nth-child(4) {
+	padding-left: 10px;
+}
+
+#attack {
+	text-align: center;
+}
+
+#attack .attackRegion {
+	font-weight: bold;
+}
+
+#attack .defenderName {
+	font-weight: bold;
+}
+
+#attack .defenderArmy {
+	color: #666;
 }

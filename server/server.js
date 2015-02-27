@@ -41,8 +41,8 @@ Meteor.methods({
 	removeUnownedRegions: function () {
 		regions.remove({owner: ''});
 	},
-	setAttack: function (region, attacker, defender) {
-		battles.upsert({attacker: attacker}, {$set: {
+	setAttack: function (region, attacker, defender, round) {
+		battles.upsert({attacker: attacker, round: round}, {$set: {
 			region: region,
 			defender: defender
 		}});
@@ -53,5 +53,11 @@ Meteor.methods({
 	},
 	clearBattles: function () {
 		battles.remove({});
+	},
+	clearRounds: function () {
+		rounds.remove({});
+	},
+	clearArmyLists: function () {
+		armyLists.remove({});
 	}
 });
