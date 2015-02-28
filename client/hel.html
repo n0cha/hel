@@ -29,7 +29,7 @@
 </template>
 
 <template name="home">
-	<p>Welcome to the website for the Hilversum Escalation League.</p>
+	<p>Welcome to the website for the Hilversum Escalation League.*</p>
 
 	<p>This is a meta-game around Warhammer, intended to provide the battles with context, fluff and a Greater
 		Goal.</p>
@@ -39,7 +39,7 @@
 	<p>Players can <a>subscribe</a> through this website. Each player picks an Army, which they will be using throughout
 		the campaign.</p>
 
-	<p>The campaign plays out on a <a>World Map</a>, consisting of Regions. Each player will get 5 adjacent Regions
+	<p>The campaign happens on a <a href="/game">Map of the Realm</a>, consisting of Regions. Each player will get 5 adjacent Regions
 		assigned to them at the start of the game.</p>
 
 	<p>Once all players have subscribed, the game starts. The game consists of 5 Rounds.</p>
@@ -55,7 +55,7 @@
 
 	<p>After you have submitted an Army List, you can declare your attack for that Round. You do this by going to the <a
 			href="/game">Game page</a> and selecting an
-		enemy Region on the World Map which is adjacent to one of your own Regions.</p>
+		enemy Region on the Map which is adjacent to one of your own Regions.</p>
 
 	<p>Once all players have done this, the Game page will show all the battles that need to be fought. In effect, each
 		player will fight one offensive battle each round and any number of defensive battles. You can make up your
@@ -81,8 +81,9 @@
 		</dd>
 	</dl>
 	
-	<p>For any comments, questions or suggestions regarding these rules, <a href="mailto:hel@richardheuser.nl">e-mail me</a>.</p>
+	<p>For any comments, questions, suggestions, <a href="mailto:hel@richardheuser.nl">e-mail me</a>.</p>
 	<!-- http://www.gameempire.com/forum/index.php?/topic/6638-the-changes-to-magic-in-the-end-times/page__st__20#entry41175 -->
+	<p>*) Waarom deze site in het engels is? Geen idee, ging vanzelf.</p>
 </template>
 
 <template name="armies">
@@ -107,11 +108,15 @@
 		<table class="armies">
 			<tbody>
 			{{#each players}}
-			<tr>
+			<tr class="{{me}}">
 				<td style="background-color: {{color}};"></td>
 				<td><img class="smallIcon" src="{{icon}}" /></td>
 				<td>{{armyName}}</td>
 				<td>({{army}})</td>
+				<td>{{regions}} regions</td>
+				{{#if started}}
+					<td><a id="showList" href="#">Show Army List</a></td>
+				{{/if}}
 			</tr>
 			{{/each}}
 			</tbody>
@@ -197,18 +202,22 @@
 			Preparation Phase - {{todo}}
 			{{/if}}
 		</h4>
-		<div>
-			{{#if number}}
-				<button id="resetGame">Reset Game</button>
+		{{#if number}}
+			<button id="resetGame">Reset Game</button>
+			{{#if done}}
 				{{#if started}}
-					<button id="nextRound">Next Round</button>
+					{{#if done}}
+						<button id="nextRound">Next Round</button>
+					{{/if}}
 				{{else}}
 					<button id="startRound">Start Round</button>
 				{{/if}}
 			{{else}}
-				<button id="startGame">Start Game</button>
+				{{ > waiting}}
 			{{/if}}
-		</div>
+		{{else}}
+			<button id="startGame">Start Game</button>
+		{{/if}}
 	</section>
 </template>
 
@@ -238,7 +247,6 @@
 										 from="pink" to="red" dur="1s"
 										 begin="animation1.end" />
 						{{/if}}
-
 					</polygon>
 					<!--<text x="15" y="30">{{x}},{{y}}</text>-->
 					{{#if capital}}
@@ -264,17 +272,32 @@
 			{{#each battles}}
 				<tr>
 					<th colspan="4">Battle of {{region}}</th>
+					<td colspan="2">
+						{{#if winnerIsMe}}
+							<button id="didntWin">No I didn't. :)</button>
+						{{else}}
+							{{#if iCanWin}}
+								<button id="iWon">I won!</button>
+							{{/if}}
+						{{/if}}
+					</td>
 				</tr>
 				{{#each players}}
-					<tr>
+					<tr class="{{me}} {{isWinner}}">
 						<td>{{role}}</td>
 						<td style="background-color: {{color}};"></td>
 						<td>{{armyName}}</td>
 						<td>({{army}})</td>
+						<td>{{userName}}</td>
+						<td>{{#if underdog}}Underdog Support{{/if}}</td>
 					</tr>
 				{{/each}}
 			{{/each}}
 		</tbody>
 	</table>
 	</section>
+</template>
+
+<template name="waiting">
+	<h4 id="waiting">Waiting for: {{#each playersNotDone}}<span>{{userName}}</span>{{/each}}</h4>
 </template>

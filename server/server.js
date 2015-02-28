@@ -44,7 +44,8 @@ Meteor.methods({
 	setAttack: function (region, attacker, defender, round) {
 		battles.upsert({attacker: attacker, round: round}, {$set: {
 			region: region,
-			defender: defender
+			defender: defender,
+			winner: ''
 		}});
 	},
 	getRegionNames: function (count) {
@@ -59,5 +60,8 @@ Meteor.methods({
 	},
 	clearArmyLists: function () {
 		armyLists.remove({});
+	},
+	setWinner: function (region, round, winner) {
+		battles.update({region: region, round: round}, {$set: {winner: winner}}, {multi: true});
 	}
 });

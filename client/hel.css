@@ -18,6 +18,15 @@ h4, h3, h2, h1 {
 	margin: 0;
 }
 
+a {
+	color: darkgoldenrod;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
 #content {
 	padding: 20px;
 }
@@ -50,6 +59,7 @@ h4, h3, h2, h1 {
 	padding: 0;
 	margin: 10px 0 0;
 	float: left;
+	margin-left: 10px;
 }
 
 #menu > li {
@@ -166,22 +176,33 @@ section button {
 
 .battles th {
 	padding: 20px 0 10px;
+	text-align: left;
+}
+
+.battles tr.me {
+	font-weight: bold;
+}
+
+.battles tr.loser {
+	text-decoration: line-through;
+}
+
+.battles td {
+	padding-left: 10px;
 }
 
 .battles td:nth-child(1) {
 	/*width: 100px;*/
 	font-style: italic;
 	padding-left: 20px;
-	padding-right: 10px;
 }
 
 .battles td:nth-child(2) {
 	width: 10px;
 }
 
-.battles td:nth-child(3),
-.battles td:nth-child(4) {
-	padding-left: 10px;
+.battles td:nth-child(6) {
+	font-style: italic;
 }
 
 /*
@@ -258,12 +279,17 @@ section button {
 	clear: both;
 }
 
+.armies tr.me {
+	font-weight: bold;
+}
+
 .armies td:nth-child(1) {
 	width: 10px;
 }
 
 .armies td:nth-child(3),
-.armies td:nth-child(4) {
+.armies td:nth-child(4),
+.armies td:nth-child(5) {
 	padding-left: 10px;
 }
 
@@ -281,4 +307,26 @@ section button {
 
 #attack .defenderArmy {
 	color: #666;
+}
+
+dt {
+	font-weight: bold;
+}
+
+dd {
+	font-style: italic;
+	margin-bottom: 10px;
+}
+
+#waiting > span {
+	font-style: italic;
+	color: #933;
+}
+
+#waiting > span:before {
+	content: ', ';
+}
+
+#waiting > span:first-child:before {
+	content: '';
 }

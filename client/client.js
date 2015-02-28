@@ -1,11 +1,6 @@
 /**
  * TODO:
- * waiting for players list + buttons
- * underdog bonus
  * view other player's list
- * see score
- * see player name
- * select battle winner
  */
 
 Router.configure({
@@ -18,6 +13,10 @@ Router.route('/:page', function () {
 Router.route('(.*)', function () {
 	Session.set('currentPage', 'home');
 	this.render('home');
+});
+
+Accounts.ui.config({
+	passwordSignupFields: "USERNAME_ONLY"
 });
 
 var armies = new Meteor.Collection('armies');
@@ -61,7 +60,7 @@ var Player = {
 		this._player = undefined;
 	},
 	getArmyList: function (round) {
-		return armyLists.findOne({player: this._get()._id, round: round || Round.number() || 1}) || '';
+		return (armyLists.findOne({player: this._get()._id, round: round || Round.number() || 1}) || {}).list || '';
 	},
 	setArmyList: function (data) {
 		var id = this.getArmyList()._id;
@@ -93,12 +92,15 @@ var Player = {
 		return this._get()._id;
 	},
 	setAttack: function (regionId) {
-		Session.set('attackRegionId', regionId);
-		Meteor.call('setAttack', regionId, this._get()._id, regions.findOne({_id: regionId}).owner, Round.number());
+		if (Round.number() && !Round.started() && Players(Player.getId()).status() === Players().STATUS.DECLARE) {
+			Session.set('attackRegionId', regionId);
+			Meteor.call('setAttack', regionId, this._get()._id, regions.findOne({_id: regionId}).owner, Round.number());
+		}
 	},
 	getAttack: function () {
 		var battle = battles.findOne({round: Round.number(), attacker: this._get()._id});
-		return Session.get('attackRegionId') || battle && battle.region;
+		var dummy = Session.get('attackRegionId');
+		return battle && battle.region;
 		//return Session.get('attackRegionId') || this._get().attack;
 	},
 	getColor: function () {
@@ -143,10 +145,14 @@ var Round = {
 		return (this._get().number || 1) * this.pointIncrement;
 	},
 	next: function () {
+		battles.find({round: this.number()}).forEach(function (battle) {
+			regions.update({_id: battle.region}, {$set: {owner: battle.winner}}, {multi: true});
+		});
 		if (this.number() < gameLength) {
 			rounds.insert({number: this.number() + 1, started: false});
 		}
 		Session.set('attackRegionId', undefined);
+		Session.set('showArmyList', undefined);
 	},
 	start: function () {
 		if (this.number() > 0 && !this.started()) {
@@ -157,6 +163,25 @@ var Round = {
 		Meteor.call('clearRounds');
 		Meteor.call('clearArmyLists');
 		Session.set('attackRegionId', undefined);
+	},
+	playersNotDone: function () {
+		var gameStarted = !!this.number(),
+				roundStarted = this.started();
+		
+		return _.filter(players.find().fetch(), function (player) {
+			var id = player._id,
+					p = Players(id);
+
+			if (gameStarted) {
+				if (roundStarted) {
+					return p.status() < p.STATUS.DONE;
+				} else {
+					return p.status() < p.STATUS.BATTLE;
+				}
+			} else {
+				return p.status() < p.STATUS.DECLARE;
+			}
+		});
 	}
 };
 
@@ -299,6 +324,52 @@ var Map = {
 	}
 };
 
+var Players = function (id) {
+	return {
+		_get: function () {
+			return players.findOne({_id: id});
+		},
+		STATUS: {
+			CREATE: 0,
+			SELECT: 1,
+			SUBMIT: 2,
+			DECLARE: 3,
+			BATTLE: 4,
+			DONE: 5
+		},
+		status: function () {
+			var player = this._get();
+			if (!player) {
+				return this.STATUS.CREATE;
+			}
+			if (!player.army) {
+				return this.STATUS.SELECT;
+			}
+			var armyList = armyLists.findOne({player: id, round: Round.number() || 1});
+			if (!armyList) {
+				return this.STATUS.SUBMIT;
+			}
+			var battle = battles.findOne({round: Round.number(), attacker: id});
+			if (!battle) {
+				return this.STATUS.DECLARE;
+			}
+			var _battles = battles.find({winner: '', $or: [{attacker: id}, {defender: id}]}).count();
+			if (_battles) {
+				return this.STATUS.BATTLE;
+			}
+			return this.STATUS.DONE;
+		},
+		armyList: function () {
+			return (armyLists.findOne({player: id, round: Round.number() || 1}) || {}).list || '';
+		}
+	};
+};
+
+var Icon = function (id) {
+	var image = images.findOne({_id: id});
+	return image && image.data || '';
+};
+
 Template.menu.helpers({
 	menuItems: function () {
 		return [
@@ -323,21 +394,29 @@ Template.round.helpers({
 		return Round.points();
 	},
 	todo: function () {
+		var player = Players(Player.getId()),
+				status = player.status();
 		if (!Round.number()) {
-			if (!Player.getId()) {
-				return 'Create your army';
-			}
-			if (!Player.getArmy()) {
-				return 'Select your army';
+			switch (status) {
+				case player.STATUS.CREATE:
+					return 'Create your army';
+				case player.STATUS.SELECT:
+					return 'Select your army';
 			}
 		}
-		if (!Round.started() && !Player.getArmyList()) {
+		if (!Round.started() && status === player.STATUS.SUBMIT) {
 			return 'Submit your army list';
 		}
-		if (Round.number() && !Player.getAttack()) {
+		if (Round.number() && status === player.STATUS.DECLARE) {
 			return 'Declare your attack';
 		}
-		return 'You\'re done! Nothing to do but wait for the other players...'
+		if (Round.playersNotDone().length) {
+			return 'You\'re done! Nothing to do but wait for the other players...';
+		}
+		return 'Everyone\'s done! Go ahead and click on "Start Round".';
+	},
+	done: function () {
+		return !Round.playersNotDone().length;
 	}
 });
 
@@ -391,7 +470,12 @@ Template.armyList.helpers({
 		return !Round.started();
 	},
 	armyList: function () {
-		return Player.getArmyList().list;
+		var id = Session.get('showArmyList');
+		if (id) {
+			return Players(id).armyList();
+		} else {
+			return Player.getArmyList().list;
+		}
 	}
 });
 
@@ -570,7 +654,7 @@ Template.map.helpers({
 });
 
 Template.map.rendered = function () {
-	if (Round.number() && !Round.started()) {
+	if (Round.number() && !Round.started() && Players(Player.getId()).status() === Players().STATUS.DECLARE) {
 		_.each(Player.getAttackableRegions(), function (id) {
 			$('#map .region[data-id="' + id + '"')
 					.attr('data-attackable', 1)
@@ -582,27 +666,64 @@ Template.map.rendered = function () {
 	}
 };
 
+Template.battles.events({
+	'click #iWon': function () {
+		Meteor.call('setWinner', this.regionId, Round.number(), Player.getId());
+	},
+	'click #didntWin': function () {
+		Meteor.call('setWinner', this.regionId, Round.number(), '');
+	}
+});
+
 Template.battles.helpers({
 	battles: function () {
 		//var _battles = battles.aggregate([{$group: {_id: '$region', defender: {$first: '$defender'}, attackers: {$addToSet: '$attacker'}}}]).fetch();
 		var _battles = {};
-		var getPlayer = function (id, role) {
-			return _.extend(players.findOne({_id: id}), {role: role});
+		var getPlayer = function (id, role, winner) {
+			return _.extend(players.findOne({_id: id}) || {}, {
+				role: role,
+				winner: winner,
+				score: regions.find({owner: id}).count()
+			});
 		};
-		var i = 0;
+		//var i = 0;
 					
 		battles.find({round: Round.number()}).forEach(function (b) {
 			if (!_battles[b.region]) {
 				_battles[b.region] = {
-					number: ++i,
+					//number: ++i,
+					regionId: b.region,
 					region: (regions.findOne({_id: b.region}) || {}).name,
-					players: [getPlayer(b.defender, 'defender')]
+					players: [getPlayer(b.defender, 'defender', b.winner && b.winner === b.defender)],
+					winner: b.winner
 				};
 			}
-			_battles[b.region].players.unshift(getPlayer(b.attacker, 'attacker'));
+			_battles[b.region].players.unshift(getPlayer(b.attacker, 'attacker', b.winner && b.winner === b.attacker));
+			var ps = _battles[b.region].players;
+			var lowest = _.min(_.pluck(ps, 'score'));
+			var highest = _.max(_.pluck(ps, 'score'));
+			_battles[b.region].players = _.map(ps, function (p) {
+				p.underdog = (p.score === lowest && p.score < highest);
+				return p;
+			});
 		});
 		
 		return _.toArray(_battles);
+	},
+	userName: function () {
+		return Meteor.users.findOne({_id: this.userId}).username;
+	},
+	winnerIsMe: function () {
+		return this.winner === Player.getId();
+	},
+	iCanWin: function () {
+		return !this.winner && _.contains(_.pluck(this.players, '_id'), Player.getId());
+	},
+	me: function () {
+		return this._id === Player.getId() ? 'me' : '';
+	},
+	isWinner: function () {
+		return this.winner === false ? 'loser' : this.winner ? 'winner' : '';
 	}
 });
 
@@ -612,9 +733,35 @@ Template.allArmies.helpers({
 	},
 	icon: function () {
 		return (images.findOne({_id: this.icon}) || {}).data;
+	},
+	me: function () {
+		return this._id === Player.getId() ? 'me' : '';
+	},
+	regions: function () {
+		return regions.find({owner: this._id}).count();
+	},
+	started: function () {
+		return Round.started();
 	}
 });
 
-Accounts.ui.config({
-	passwordSignupFields: "USERNAME_ONLY"
+Template.allArmies.events({
+	'click #showList': function () {
+		Session.set('showArmyList', this._id);
+	}
+});
+
+Template.waiting.helpers({
+	playersNotDone: function () {
+		return Round.playersNotDone();
+	},
+	userName: function () {
+		return Meteor.userId() === this.userId ? 'You' : Meteor.users.findOne({_id: this.userId}).username;
+	},
+	icon: function () {
+		return Icon(this.icon);
+	},
+	regionCount: function () {
+		return regions.find({owner: this._id}).count();
+	}
 });
