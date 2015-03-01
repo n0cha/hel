@@ -63,5 +63,8 @@ Meteor.methods({
 	},
 	setWinner: function (region, round, winner) {
 		battles.update({region: region, round: round}, {$set: {winner: winner}}, {multi: true});
+	},
+	setArmyList: function (player, round, list) {
+		armyLists.upsert({player: player, round: round}, {$set: {list: list}});
 	}
 });
