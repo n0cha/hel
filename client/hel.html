@@ -215,7 +215,10 @@
 				{{ > waiting}}
 			{{/if}}
 		{{else}}
-			<button id="startGame">Start Game</button>
+            {{#if done}}
+                When all players are done, click this button to start the game:
+			    <button id="startGame">Start Game</button>
+            {{/if}}
 		{{/if}}
 	</section>
 </template>
