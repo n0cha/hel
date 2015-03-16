@@ -214,14 +214,16 @@
 				{{else}}
 					<button id="startRound">Start Round</button>
 				{{/if}}
-			{{else}}
-				{{ > waiting}}
 			{{/if}}
 		{{else}}
-            {{#if done}}
-                When all players are done, click this button to start the game:
-			    <button id="startGame">Start Game</button>
-            {{/if}}
+			{{#if done}}
+				When all players are done, click this button to start the game:
+				<button id="startGame">Start Game</button>
+			{{/if}}
+		{{/if}}
+		{{#if done}}
+		{{else}}
+			{{ > waiting}}
 		{{/if}}
 	</section>
 </template>

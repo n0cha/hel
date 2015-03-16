@@ -329,10 +329,12 @@ var Players = function (id) {
 		STATUS: {
 			CREATE: 0,
 			SELECT: 1,
-			SUBMIT: 2,
-			DECLARE: 3,
-			BATTLE: 4,
-			DONE: 5
+			COLOR: 2,
+			ICON: 3,
+			SUBMIT: 4,
+			DECLARE: 5,
+			BATTLE: 6,
+			DONE: 7
 		},
 		status: function () {
 			var player = this._get();
@@ -341,6 +343,12 @@ var Players = function (id) {
 			}
 			if (!player.army) {
 				return this.STATUS.SELECT;
+			}
+			if (!player.color) {
+				return this.STATUS.COLOR;
+			}
+			if (!player.icon) {
+				return this.STATUS.ICON;
 			}
 			var armyList = armyLists.findOne({player: id, round: Round.number() || 1});
 			if (!armyList) {
@@ -417,6 +425,10 @@ Template.round.helpers({
 					return 'Create your army';
 				case player.STATUS.SELECT:
 					return 'Select your army';
+				case player.STATUS.COLOR:
+					return 'Select a color';
+				case player.STATUS.ICON:
+					return 'Select an icon';
 			}
 		}
 		if (!Round.started() && status === player.STATUS.SUBMIT) {
