@@ -521,7 +521,7 @@ Template.armyList.helpers({
 		if (id) {
 			return Players(id).armyList();
 		} else {
-			return Player.getArmyList();
+			return Player.getArmyList().list;
 		}
 	}
 });
