@@ -1,8 +1,3 @@
-/**
- * TODO:
- * view other player's list
- */
-
 Router.configure({
 	layoutTemplate: 'layout'
 });
@@ -32,6 +27,8 @@ var hexHeight = 45;
 
 var gameLength = 5;
 
+var imgurClientId = '67ec3375f415b98';
+
 var Player = {
 	_player: undefined,
 	
@@ -60,7 +57,7 @@ var Player = {
 		this._player = undefined;
 	},
 	getArmyList: function (round) {
-		return (armyLists.findOne({player: this._get()._id, round: round || Round.number() || 1}) || {}).list || '';
+		return armyLists.findOne({player: this._get()._id, round: round || Round.number() || 1}) || {};
 	},
 	setArmyList: function (data) {
 		var id = this.getArmyList()._id;
@@ -370,6 +367,24 @@ var Icon = function (id) {
 	return image && image.data || '';
 };
 
+Icon.fromUrl = function (url, callback) {
+	var image = new Image();
+	image.setAttribute('crossOrigin', 'anonymous');
+	image.src = url;
+	
+	this.fromImage(image, callback);
+};
+
+Icon.fromImage = function (image, callback) {
+	image.onload = function () {
+		var canvas = $('<canvas>');
+		canvas.attr('width', image.width);
+		canvas.attr('height', image.height);
+		canvas.get(0).getContext('2d').drawImage(image, 0, 0);
+		callback(canvas.get(0).toDataURL());
+	};
+};
+
 Template.menu.helpers({
 	menuItems: function () {
 		return [
@@ -441,6 +456,38 @@ Template.round.events({
 Template.armySettings.events({
 	'click #createPlayer': function () {
 		Player.create();
+	},
+	'change #uploadIcon > input': function () {
+		var formData = new FormData($('form')[0]),
+				progressHandlingFunction = function () {};
+		
+		$.ajax({
+			url: 'https://api.imgur.com/3/image',
+			type: 'POST',
+			headers: {
+				Authorization: 'Client-ID ' + imgurClientId,
+				Accept: 'application/json'
+			},
+			xhr: function() {
+				var xhr = $.ajaxSettings.xhr();
+				if (xhr.upload) {
+					xhr.upload.addEventListener('progress', progressHandlingFunction, false);
+				}
+				return xhr;
+			},
+			//beforeSend: beforeSendHandler,
+			success: function (result) {
+				//Icon.fromUrl(result.data.link, function (data) {
+					var data = result.data.link;
+					Player.setIcon(data);
+				//});
+			},
+			//error: errorHandler,
+			data: formData,
+			cache: false,
+			contentType: false,
+			processData: false
+		});
 	}
 });
 
@@ -479,6 +526,16 @@ Template.armyList.helpers({
 	}
 });
 
+Template.armyList.events({
+	'input #armyList': function () {
+		$('#submitArmyList').attr('disabled', false);
+	},
+	'click #submitArmyList': function () {
+		Player.setArmyList($('#armyList').val());
+		$('#submitArmyList').attr('disabled', true);
+	}
+});
+
 Template.armies.helpers({
 	gameStarted: function () {
 		return !!Round.number();
@@ -503,9 +560,6 @@ Template.armies.events({
 	'change #armyName': function (event) {
 		Player.setArmyName(event.target.value);
 	},
-	'click #submitArmyList': function (event) {
-		Player.setArmyList($('#armyList').val());
-	},
 	'change #colorPicker': function (event) {
 		Player.setColor(event.target.value);
 	},
@@ -526,14 +580,6 @@ Template.armies.events({
 
 				if (mimeType.match(/^image\/\w+$/)) {
 					Player.setIcon(data);
-					//$('<img />')
-					//		.attr('src', data)
-					//		.on('load', function () {
-					//			Meteor.defer(function () {
-					//				Player.setIcon(data);
-					//			}.bind(this));
-					//		})
-					//;
 				}
 			};
 
@@ -541,14 +587,9 @@ Template.armies.events({
 		} else {
 			var data = e.dataTransfer.getData('text/html');
 			if (data) {
-				var canvas = $('<canvas>'),
-						image = $(data).get(1);
-				image.onload = function () {
-					canvas.attr('width', image.width);
-					canvas.attr('height', image.height);
-					canvas.get(0).getContext('2d').drawImage(image, 0, 0);
-					Player.setIcon(canvas.get(0).toDataURL());
-				};
+				Icon.fromImage($(data).get(1), function (data) {
+					Player.setIcon(data);
+				});
 			}
 		}
 	}
@@ -763,5 +804,17 @@ Template.waiting.helpers({
 	},
 	regionCount: function () {
 		return regions.find({owner: this._id}).count();
+	}
+});
+
+Template.warning.helpers({
+	show: function () {
+		return !Cookie.get('warningSeen');
+	}
+});
+
+Template.warning.events({
+	'click #closeWarning': function () {
+		Cookie.set('warningSeen', true);
 	}
 });

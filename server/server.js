@@ -1,3 +1,10 @@
+/**
+ * imgur:
+ * helgame
+ * hel@richardheuser.nl
+ * passw0rd
+ */
+
 var armies = new Meteor.Collection('armies');
 var regions = new Meteor.Collection('regions');
 var rounds = new Meteor.Collection('rounds');

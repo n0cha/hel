@@ -8,6 +8,7 @@
 </body>
 
 <template name="layout">
+	{{> warning}}
 	<div id="header">
 		<h1>Hilversum Escalation League</h1>
 		<h4>A Warhammer Fantasy Battles Campaign</h4>
@@ -152,7 +153,9 @@
 					<img id="icon" src="{{icon}}" />
 					{{/if}}
 				</div>
-				<!--<input id="upload" type="file" />-->
+				<form id="uploadIcon" enctype="multipart/form-data">
+					<input name="image" type="file" />
+				</form>
 			</div>
 		{{else}}
 			<button id="createPlayer">Create Army</button>
@@ -168,7 +171,7 @@
 				<textarea id="armyList">{{armyList}}</textarea>
 			</div>
 			<div>
-				<button id="submitArmyList">Submit</button>
+				<button id="submitArmyList" disabled>Submit</button>
 			</div>
 		{{else}}
 			<div class="armyList">{{armyList}}</div>
@@ -202,7 +205,7 @@
 			{{/if}}
 		</h4>
 		{{#if number}}
-			<!--<button id="resetGame">Reset Game</button>-->
+			<button id="resetGame">Reset Game</button>
 			{{#if done}}
 				{{#if started}}
 					{{#if done}}
@@ -302,4 +305,10 @@
 
 <template name="waiting">
 	<h4 id="waiting">Waiting for: {{#each playersNotDone}}<span>{{userName}}</span>{{/each}}</h4>
+</template>
+
+<template name="warning">
+	{{#if show}}
+		<div id="warning">This website uses HTML5 and therefore its proper working can't be guaranteed on older browsers. I'm sorry. <a id="closeWarning" href="#">Ok, got it.</a></div>
+	{{/if}}
 </template>

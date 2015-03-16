@@ -265,6 +265,10 @@ section button {
 	position: relative;
 }
 
+#uploadIcon {
+	display: inline-block
+}
+
 #login-buttons {
 	float: right;
 	margin: 20px 10px 0 0;
@@ -330,3 +334,13 @@ dd {
 #waiting > span:first-child:before {
 	content: '';
 }
+
+#warning {
+	width: 100%;
+	border: 1px solid black;
+	background: gold;
+	padding: 5px;
+	font-size: 75%;
+	text-align: center;
+}
+
