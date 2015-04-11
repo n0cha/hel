@@ -353,10 +353,8 @@ dd {
 	resize: none;
 	border: 1px solid silver;
 	outline: none;
-	position: absolute;
-	bottom: 0;
-	left: 40px;
-	right: 40px;
+	background: #fff;
+	margin-top: -10px
 }
 
 .chatUser {

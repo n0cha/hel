@@ -879,7 +879,7 @@ Template.chat.rendered = function () {
 	var $chatinput = $('#chatinput');
 	var margins = $chatbox.outerHeight(true) - $chatbox.height();
 	var resizeChatbox = function () {
-		$chatbox.height($chatinput.offset().top - $chatbox.offset().top - margins);
+		$chatbox.height($(window).height() - $chatbox.offset().top - margins - $chatinput.outerHeight(true));
 	}
 	$(window)
 			.on('resize', resizeChatbox)
