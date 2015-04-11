@@ -881,7 +881,10 @@ Template.chat.rendered = function () {
 	var resizeChatbox = function () {
 		$chatbox.height($chatinput.offset().top - $chatbox.offset().top - margins);
 	}
-	$(window).on('resize', resizeChatbox);
+	$(window)
+			.on('resize', resizeChatbox)
+			.on('scroll', resizeChatbox)
+	;
 	resizeChatbox();
 	
 	$chatbox.stop().animate({scrollTop: $chatbox.prop('scrollHeight')}, 0);
