@@ -12,6 +12,7 @@ var players = new Meteor.Collection('players');
 var armyLists = new Meteor.Collection('armyLists');
 var battles = new Meteor.Collection('battles');
 var images = new Meteor.Collection('images');
+var chatMessages = new Meteor.Collection('chatMessages');
 
 Meteor.startup(function () {
 	//[

@@ -165,7 +165,7 @@
 
 <template name="armyList">
 	<section>
-		<h3>Your Army List</h3>
+		<h3>{{armyOwner}} Army List</h3>
 		{{#if roundPrep}}
 			<div>
 				<textarea id="armyList">{{armyList}}</textarea>
@@ -174,7 +174,7 @@
 				<button id="submitArmyList" disabled>Submit</button>
 			</div>
 		{{else}}
-			<div class="armyList">{{armyList}}</div>
+			<div class="armyList"><pre>{{armyList}}</pre></div>
 		{{/if}}
 	</section>
 </template>
@@ -205,7 +205,7 @@
 			{{/if}}
 		</h4>
 		{{#if number}}
-			<button id="resetGame">Reset Game</button>
+			<!--<button id="resetGame">Reset Game</button>-->
 			{{#if done}}
 				{{#if started}}
 					{{#if done}}
@@ -313,4 +313,16 @@
 	{{#if show}}
 		<div id="warning">This website uses HTML5 and therefore its proper operation can't be guaranteed on older browsers. I'm sorry. <a id="closeWarning" href="#">Ok, got it.</a></div>
 	{{/if}}
+</template>
+
+<template name="chat">
+	<section>
+		<div id="chatbox">
+			{{#each chatMessages}}
+				<span class="chatUser">{{userName}}</span>
+				<span class="chatMessage">{{message}}</span>
+			{{/each}}
+		</div>
+		<div contenteditable id="chatinput"></div>
+	</section>
 </template>

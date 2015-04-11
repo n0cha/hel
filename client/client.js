@@ -21,6 +21,7 @@ var players = new Meteor.Collection('players');
 var armyLists = new Meteor.Collection('armyLists');
 var battles = new Meteor.Collection('battles');
 var images = new Meteor.Collection('images');
+var chatMessages = new Meteor.Collection('chatMessages');
 
 var hexWidth = 60;
 var hexHeight = 45;
@@ -89,7 +90,7 @@ var Player = {
 		return this._get()._id;
 	},
 	setAttack: function (regionId) {
-		if (Round.number() && !Round.started() && Players(Player.getId()).status() === Players().STATUS.DECLARE) {
+		if (Round.number() && !Round.started() && this.canDeclareAttack()) {
 			Session.set('attackRegionId', regionId);
 			Meteor.call('setAttack', regionId, this._get()._id, regions.findOne({_id: regionId}).owner, Round.number());
 		}
@@ -120,6 +121,10 @@ var Player = {
 			var image = images.findOne({_id: id});
 			return image && image.data;
 		}
+	},
+	canDeclareAttack: function () {
+		var playerStatus = Players(Player.getId()).status();
+		return playerStatus === Players.STATUS.DECLARE || playerStatus === Players.STATUS.BATTLE;
 	}
 };
 
@@ -171,12 +176,12 @@ var Round = {
 
 			if (gameStarted) {
 				if (roundStarted) {
-					return p.status() < p.STATUS.DONE;
+					return p.status() < Players.STATUS.DONE;
 				} else {
-					return p.status() < p.STATUS.BATTLE;
+					return p.status() < Players.STATUS.BATTLE;
 				}
 			} else {
-				return p.status() < p.STATUS.DECLARE;
+				return p.status() < Players.STATUS.DECLARE;
 			}
 		});
 	}
@@ -326,48 +331,52 @@ var Players = function (id) {
 		_get: function () {
 			return players.findOne({_id: id});
 		},
-		STATUS: {
-			CREATE: 0,
-			SELECT: 1,
-			COLOR: 2,
-			ICON: 3,
-			SUBMIT: 4,
-			DECLARE: 5,
-			BATTLE: 6,
-			DONE: 7
-		},
 		status: function () {
 			var player = this._get();
 			if (!player) {
-				return this.STATUS.CREATE;
+				return Players.STATUS.CREATE;
 			}
 			if (!player.army) {
-				return this.STATUS.SELECT;
+				return Players.STATUS.SELECT;
 			}
 			if (!player.color) {
-				return this.STATUS.COLOR;
+				return Players.STATUS.COLOR;
 			}
 			if (!player.icon) {
-				return this.STATUS.ICON;
+				return Players.STATUS.ICON;
 			}
 			var armyList = armyLists.findOne({player: id, round: Round.number() || 1});
 			if (!armyList) {
-				return this.STATUS.SUBMIT;
+				return Players.STATUS.SUBMIT;
 			}
 			var battle = battles.findOne({round: Round.number(), attacker: id});
 			if (!battle) {
-				return this.STATUS.DECLARE;
+				return Players.STATUS.DECLARE;
 			}
 			var _battles = battles.find({winner: '', $or: [{attacker: id}, {defender: id}]}).count();
 			if (_battles) {
-				return this.STATUS.BATTLE;
+				return Players.STATUS.BATTLE;
 			}
-			return this.STATUS.DONE;
+			return Players.STATUS.DONE;
 		},
 		armyList: function () {
 			return (armyLists.findOne({player: id, round: Round.number() || 1}) || {}).list || '';
+		},
+		armyName: function () {
+			return this._get().armyName;
 		}
 	};
+};
+
+Players.STATUS = {
+	CREATE: 0,
+	SELECT: 1,
+	COLOR: 2,
+	ICON: 3,
+	SUBMIT: 4,
+	DECLARE: 5,
+	BATTLE: 6,
+	DONE: 7
 };
 
 var Icon = function (id) {
@@ -398,7 +407,8 @@ Template.menu.helpers({
 		return [
 			{name: 'home', title: 'Home'},
 			{name: 'armies', title: 'Armies'},
-			{name: 'game', title: 'Game'}
+			{name: 'game', title: 'Game'},
+			{name: 'chat', title: 'Chat'}
 		];
 	},
 	selected: function () {
@@ -421,20 +431,20 @@ Template.round.helpers({
 				status = player.status();
 		if (!Round.number()) {
 			switch (status) {
-				case player.STATUS.CREATE:
+				case Players.STATUS.CREATE:
 					return 'Create your army';
-				case player.STATUS.SELECT:
+				case Players.STATUS.SELECT:
 					return 'Select your army';
-				case player.STATUS.COLOR:
+				case Players.STATUS.COLOR:
 					return 'Select a color';
-				case player.STATUS.ICON:
+				case Players.STATUS.ICON:
 					return 'Select an icon';
 			}
 		}
-		if (!Round.started() && status === player.STATUS.SUBMIT) {
+		if (!Round.started() && status === Players.STATUS.SUBMIT) {
 			return 'Submit your army list';
 		}
-		if (Round.number() && status === player.STATUS.DECLARE) {
+		if (Round.number() && status === Players.STATUS.DECLARE) {
 			return 'Declare your attack';
 		}
 		if (Round.playersNotDone().length) {
@@ -535,6 +545,14 @@ Template.armyList.helpers({
 		} else {
 			return Player.getArmyList().list;
 		}
+	},
+	armyOwner: function () {
+		var id = Session.get('showArmyList');
+		if (id && id !== Player.getId()) {
+			return Players(id).armyName();
+		} else {
+			return 'Your';
+		}
 	}
 });
 
@@ -556,9 +574,6 @@ Template.armies.helpers({
 		return Player.getArmy();
 	}
 });
-
-Template.armies.rendered = function () {
-};
 
 var prevent = function (e) {
 	e.stopPropagation();
@@ -707,7 +722,9 @@ Template.map.helpers({
 });
 
 Template.map.rendered = function () {
-	if (Round.number() && !Round.started() && Players(Player.getId()).status() === Players().STATUS.DECLARE) {
+	var playerStatus = Players(Player.getId()).status();
+	var canDeclareAttack = playerStatus === Players.STATUS.DECLARE || playerStatus === Players.STATUS.BATTLE;
+	if (Round.number() && !Round.started() && canDeclareAttack) {
 		_.each(Player.getAttackableRegions(), function (id) {
 			$('#map .region[data-id="' + id + '"')
 					.attr('data-attackable', 1)
@@ -830,3 +847,45 @@ Template.warning.events({
 		Cookie.set('warningSeen', true);
 	}
 });
+
+Template.chat.helpers({
+	chatMessages: function () {
+		var messages = chatMessages.find();
+		messages.observe({
+			added: function () {
+				var $chatbox = $('#chatbox');
+				$chatbox.stop().animate({scrollTop: $chatbox.prop('scrollHeight')}, 500);
+			}
+		});
+		return messages;
+	},
+	userName: function () {
+		return Meteor.users.findOne({_id: this.userId}).username;
+	}
+});
+
+Template.chat.events({
+	'keypress #chatinput': function (e) {
+		var message = $(e.target).text().trim();
+		if (e.keyCode === 13 && message) {
+			chatMessages.insert({userId: Meteor.userId(), message: message});
+			$(e.target).text('');
+		}
+	}
+});
+
+Template.chat.rendered = function () {
+	var $chatbox = $('#chatbox');
+	var $chatinput = $('#chatinput');
+	var margins = $chatbox.outerHeight(true) - $chatbox.height();
+	var resizeChatbox = function () {
+		$chatbox.height($chatinput.offset().top - $chatbox.offset().top - margins);
+	}
+	$(window).on('resize', resizeChatbox);
+	resizeChatbox();
+	
+	$chatbox.stop().animate({scrollTop: $chatbox.prop('scrollHeight')}, 0);
+	$chatinput.focus();
+};
+
+Template.chat.preserve(['#chatbox']);
