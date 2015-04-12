@@ -85,10 +85,6 @@ a:hover {
 	text-decoration: none;
 }
 
-#login-buttons {
-	color: #fff;
-}
-
 section {
 	border-top: 1px solid #ccc;
 	border-left: 1px solid #ccc;
@@ -127,9 +123,10 @@ section textarea {
 }
 
 section button {
-	height: 30px;
-	width: 200px;
+	height: 21px;
+	width: 100px;
 	display: inline-block;
+	white-space: nowrap;
 }
 
 #mapContainer {
@@ -175,8 +172,15 @@ section button {
 }
 
 .battles th {
-	padding: 20px 0 10px;
+	padding: 10px 0 5px;
+}
+
+.battles th:first-child {
 	text-align: left;
+}
+
+.battles th:nth-child(2) {
+	text-align: right;
 }
 
 .battles tr.me {
@@ -203,6 +207,10 @@ section button {
 
 .battles td:nth-child(6) {
 	font-style: italic;
+}
+
+.battles td {
+	font-size: small;
 }
 
 /*
@@ -271,7 +279,7 @@ section button {
 
 #login-buttons {
 	float: right;
-	margin: 20px 10px 0 0;
+	margin: 10px 10px 0 0;
 }
 
 #login-dropdown-list {
@@ -357,9 +365,15 @@ dd {
 	margin-top: -10px
 }
 
+.chatTime {
+	font-size: smaller;
+	margin-left: 10px;
+	color: silver;
+}
+
 .chatUser {
 	font-weight: bold;
-	display: block;
+	font-size: smaller;
 }
 
 .chatMessage {

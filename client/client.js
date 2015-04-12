@@ -861,6 +861,10 @@ Template.chat.helpers({
 	},
 	userName: function () {
 		return Meteor.users.findOne({_id: this.userId}).username;
+	},
+	time: function () {
+		return this.time && moment(this.time).fromNow() || '';
+		//return this.time && this.time.toLocaleTimeString && this.time.toLocaleTimeString() || '';
 	}
 });
 
@@ -868,7 +872,7 @@ Template.chat.events({
 	'keypress #chatinput': function (e) {
 		var message = $(e.target).text().trim();
 		if (e.keyCode === 13 && message) {
-			chatMessages.insert({userId: Meteor.userId(), message: message});
+			chatMessages.insert({userId: Meteor.userId(), message: message, time: new Date()});
 			$(e.target).text('');
 		}
 	}
