@@ -148,6 +148,11 @@ var Round = {
 	},
 	next: function () {
 		battles.find({round: this.number()}).forEach(function (battle) {
+			var capital = players.findOne({capital: battle.region});
+			if (capital && capital._id !== battle.winner) {
+				// player lost capital
+				Players(capital._id).setCapital(regions.findOne({owner: capital._id})._id);
+			}
 			regions.update({_id: battle.region}, {$set: {owner: battle.winner}}, {multi: true});
 		});
 		if (this.number() < gameLength) {
@@ -364,6 +369,9 @@ var Players = function (id) {
 		},
 		armyName: function () {
 			return this._get().armyName;
+		},
+		setCapital: function (region) {
+			players.update({_id: id}, {$set: {capital: region}});
 		}
 	};
 };
@@ -794,6 +802,15 @@ Template.battles.helpers({
 	},
 	isWinner: function () {
 		return this.winner === false ? 'loser' : this.winner ? 'winner' : '';
+	},
+	planLink: function () {
+		var title = encodeURIComponent('Battle of ' + this.region);
+		var desc = encodeURIComponent(_.reduce(this.players, function (m, p) {
+			return m + p.role + ': ' + p.armyName + ' (' + p.army + ') - ' + Meteor.users.findOne({_id: p.userId}).username + (p.underdog ? ' [Underdog Support]' : '') + '\n';
+		}, ''));
+		var player = encodeURIComponent(Meteor.users.findOne({_id: Meteor.userId()}).username);
+		var location = encodeURIComponent('Joost\'s place');
+		return 'http://doodle.com/create?type=date&title=' + title + '&location=' + location + '&description=' + desc + '&name=' + player;
 	}
 });
 
@@ -894,5 +911,3 @@ Template.chat.rendered = function () {
 	$chatbox.stop().animate({scrollTop: $chatbox.prop('scrollHeight')}, 0);
 	$chatinput.focus();
 };
-
-Template.chat.preserve(['#chatbox']);
