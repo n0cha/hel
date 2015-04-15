@@ -450,7 +450,7 @@ Template.round.helpers({
 			}
 		}
 		if (!Round.started() && status === Players.STATUS.SUBMIT) {
-			return 'Submit your army list';
+			return 'Submit your army list' + (Round.number() > 1 ? '. Don\'t forget your ' + (Round.points() / 5) + 'pt mercenary force!' : '');
 		}
 		if (Round.number() && status === Players.STATUS.DECLARE) {
 			return 'Declare your attack';
