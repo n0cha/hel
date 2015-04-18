@@ -1,0 +1,92 @@
+<template name="armies">
+	{{#if currentUser}}
+		{{> round}}
+		{{> allArmies}}
+		{{#if gameStarted}}
+		{{else}}
+			{{> armySettings}}
+		{{/if}}
+		{{#if army}}
+			{{> armyList}}
+		{{/if}}
+	{{else}}
+		<p>You need to be signed in to view this page.</p>
+	{{/if}}
+</template>
+
+<template name="allArmies">
+	<section>
+		<h3>Armies</h3>
+		<table class="armies">
+			<tbody>
+			{{#each players}}
+				<tr class="{{me}}">
+					<td style="background-color: {{color}};"></td>
+					<td><img class="smallIcon" src="{{icon}}" /></td>
+					<td>{{armyName}}</td>
+					<td>({{army}})</td>
+					<td>{{regions}} regions</td>
+					{{#if started}}
+						<td><a id="showList" href="#">Show Army List</a></td>
+					{{/if}}
+				</tr>
+			{{/each}}
+			</tbody>
+		</table>
+	</section>
+</template>
+
+<template name="armySettings">
+	<section>
+		<h3>Your Army</h3>
+		{{#if player}}
+			<h4>Note: This can no longer be changed once the game is underway!</h4>
+			<div>
+				<label>Army book:</label>
+				<select id="army">
+					<option value="">[select your army]</option>
+					{{#each armies}}
+						<option value="{{name}}" {{selected}}>{{name}}</option>
+					{{/each}}
+				</select>
+			</div>
+			<div>
+				<label>Army name:</label>
+				<input id="armyName" value="{{armyName}}">
+			</div>
+			<div>
+				<label>Color:</label>
+				<input id="colorPicker" type="color" value="{{color}}" />
+			</div>
+			<div>
+				<label>Icon:</label>
+				<div id="dropzone">DRAG HERE
+					{{#if icon}}
+						<img id="icon" src="{{icon}}" />
+					{{/if}}
+				</div>
+				<form id="uploadIcon" enctype="multipart/form-data">
+					<input name="image" type="file" />
+				</form>
+			</div>
+		{{else}}
+			<button id="createPlayer">Create Army</button>
+		{{/if}}
+	</section>
+</template>
+
+<template name="armyList">
+	<section>
+		<h3>{{armyOwner}} Army List</h3>
+		{{#if roundPrep}}
+			<div>
+				<textarea id="armyList">{{armyList}}</textarea>
+			</div>
+			<div>
+				<button id="submitArmyList" disabled>Submit</button>
+			</div>
+		{{else}}
+			<div class="armyList"><pre>{{armyList}}</pre></div>
+		{{/if}}
+	</section>
+</template>

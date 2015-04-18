@@ -1,0 +1,42 @@
+<template name="round">
+	<section id="round">
+		<h3>Round {{number}}</h3>
+		<h4>Point Allowance: {{points}}</h4>
+		<h4>
+			{{#if started}}
+				{{#if done}}
+					All battles done.
+				{{else}}
+					Round has started - Fight your battles!
+				{{/if}}
+			{{else}}
+				Preparation Phase - {{todo}}
+			{{/if}}
+		</h4>
+		{{#if number}}
+			<!--<button id="resetGame">Reset Game</button>-->
+			{{#if done}}
+				{{#if started}}
+					{{#if done}}
+						<button id="nextRound">Next Round</button>
+					{{/if}}
+				{{else}}
+					<button id="startRound">Start Round</button>
+				{{/if}}
+			{{/if}}
+		{{else}}
+			{{#if done}}
+				When all players are done, click this button to start the game:
+				<button id="startGame">Start Game</button>
+			{{/if}}
+		{{/if}}
+		{{#if done}}
+		{{else}}
+			{{ > waiting}}
+		{{/if}}
+	</section>
+</template>
+
+<template name="waiting">
+	<h4 id="waiting">Waiting for: {{#each playersNotDone}}<span>{{userName}}</span>{{/each}}</h4>
+</template>

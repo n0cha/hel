@@ -1,0 +1,15 @@
+<template name="chat">
+	{{#if currentUser}}
+		<section>
+			<div id="chatbox">
+				{{#each chatMessages}}
+					<span class="chatUser">{{userName}}</span><span class="chatTime">{{time}}</span>
+					<span class="chatMessage">{{message}}</span>
+				{{/each}}
+			</div>
+			<div contenteditable id="chatinput"></div>
+		</section>
+	{{else}}
+		<p>You need to be signed in to view this page.</p>
+	{{/if}}
+</template>

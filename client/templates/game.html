@@ -1,0 +1,90 @@
+<template name="game">
+	{{#if currentUser}}
+		{{> round}}
+		{{#if roundStarted}}
+			{{> battles}}
+		{{/if}}
+		{{#if gameStarted}}
+			{{> map}}
+		{{/if}}
+	{{else}}
+		<p>You need to be signed in to view this page.</p>
+	{{/if}}
+</template>
+
+<template name="map">
+	<section>
+		<h3>The Realm</h3>
+		<div id="mapContainer" style="width:{{width}}px;height:{{height}}px;"><div id="mapBox">
+			<svg id="map" width="{{width}}" height="{{height}}">
+				{{#each region}}
+					<g transform="translate({{anchorX}} {{anchorY}})">
+						<polygon class="region" points="{{points}}" fill="{{color}}" data-id="{{id}}" data-owned="{{owned}}" data-attacking="{{attacking}}">
+							{{#if attacking}}
+								<animate id="animation1"
+												 attributeName="fill-opacity"
+												 from="0.5" to="0.25" dur="1s"
+												 begin="0s;animation2.end" />
+								<animate id="animation2"
+												 attributeName="fill-opacity"
+												 from="0.25" to="0.5" dur="1s"
+												 begin="animation1.end" />
+								<animate id="animation3"
+												 attributeName="stroke"
+												 from="red" to="pink" dur="1s"
+												 begin="0s;animation4.end" />
+								<animate id="animation4"
+												 attributeName="stroke"
+												 from="pink" to="red" dur="1s"
+												 begin="animation1.end" />
+							{{/if}}
+						</polygon>
+						<!--<text x="15" y="30">{{x}},{{y}}</text>-->
+						{{#if capital}}
+							<image x="14" y="14" width="32" height="32" xlink:href="{{capital}}" />
+						{{/if}}
+					</g>
+				{{/each}}
+			</svg>
+		</div></div>
+		{{#if attackRegion}}
+			<div id="attack">
+				Attacking: <span class="attackRegion">{{attackRegion}}</span>, owned by: <span class="defenderName" style="color:{{defenderColor}};">{{defenderName}}</span> <span class="defenderArmy">({{defenderArmy}})</span>
+			</div>
+		{{/if}}
+	</section>
+</template>
+
+<template name="battles">
+	<section>
+		<h3>Battles</h3>
+		<table class="battles">
+			<tbody>
+			{{#each battles}}
+				<tr>
+					<th colspan="6">Battle of {{region}}
+						{{#if winnerIsMe}}
+							<button id="didntWin">No I didn't. :)</button>
+						{{else}}
+							{{#if iCanWin}}
+								<button id="iWon">I won!</button>
+								<a href="{{planLink}}" target="_blank">Schedule</a>
+							{{/if}}
+						{{/if}}
+					</th>
+				</tr>
+				{{#each players}}
+					<tr class="{{me}} {{isWinner}}">
+						<td>{{role}}</td>
+						<td style="background-color: {{color}};"></td>
+						<td>{{armyName}}</td>
+						<td>({{army}})</td>
+						<td>{{userName}}</td>
+						<td>{{#if underdog}}Underdog Support{{/if}}</td>
+					</tr>
+				{{/each}}
+			{{/each}}
+			</tbody>
+		</table>
+	</section>
+</template>

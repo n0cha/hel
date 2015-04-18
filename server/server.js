@@ -5,15 +5,6 @@
  * passw0rd
  */
 
-var armies = new Meteor.Collection('armies');
-var regions = new Meteor.Collection('regions');
-var rounds = new Meteor.Collection('rounds');
-var players = new Meteor.Collection('players');
-var armyLists = new Meteor.Collection('armyLists');
-var battles = new Meteor.Collection('battles');
-var images = new Meteor.Collection('images');
-var chatMessages = new Meteor.Collection('chatMessages');
-
 Meteor.startup(function () {
 	//[
 	//	{name: 'The Empire'},
