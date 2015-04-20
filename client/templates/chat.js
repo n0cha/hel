@@ -12,6 +12,12 @@ Template.chat.helpers({
 	userName: function () {
 		return Meteor.users.findOne({_id: this.userId}).username;
 	},
+	color: function () {
+		return players.findOne({userId: this.userId}).color;
+	},
+	icon: function () {
+		return Player(players.findOne({userId: this.userId})._id).icon();
+	},
 	time: function () {
 		return this.time && moment(this.time).fromNow() || '';
 	}
@@ -19,10 +25,13 @@ Template.chat.helpers({
 
 Template.chat.events({
 	'keypress #chatinput': function (e) {
-		var message = $(e.target).text().trim();
-		if (e.keyCode === 13 && message) {
-			chatMessages.insert({userId: Meteor.userId(), message: message, time: new Date()});
-			$(e.target).text('');
+		if (e.keyCode === 13) {
+			e.preventDefault();
+			var message = $(e.target).text().trim();
+			if (message) {
+				chatMessages.insert({userId: Meteor.userId(), message: message, time: new Date()});
+			}
+			e.target.innerHTML = '';
 		}
 	}
 });

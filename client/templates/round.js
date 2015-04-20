@@ -39,10 +39,6 @@ Template.round.helpers({
 });
 
 Template.round.events({
-	'click #resetGame': function () {
-		Map.clear();
-		Round.reset();
-	},
 	'click #startGame': function () {
 		Map.create();
 		Map.populate();

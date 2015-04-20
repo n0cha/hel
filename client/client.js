@@ -14,6 +14,8 @@ Accounts.ui.config({
 	passwordSignupFields: "USERNAME_ONLY"
 });
 
+var nrOfBanners = 1;
+
 Template.menu.helpers({
 	menuItems: function () {
 		return [
@@ -28,6 +30,22 @@ Template.menu.helpers({
 		return this.name === Session.get('currentPage') ? '_selected' : '';
 	}
 });
+
+Template.menu.rendered = function () {
+	var $stickyMenu = $('#menu.sticky');
+	$(window).on('scroll', function () {
+		if ($(window).scrollTop() > $('#menu').offset().top) {
+			//$menu.addClass('sticky');
+			$stickyMenu.show();
+		} else {
+			//$menu.removeClass('sticky');
+			$stickyMenu.hide();
+		}
+	});
+	
+	//var banner = Math.floor((new Date()).getMinutes() / (60 / nrOfBanners)) + 1;
+	//$('#header').css({backgroundImage: 'url(images/hel' + banner + '.png)'});
+};
 
 Template.warning.helpers({
 	show: function () {

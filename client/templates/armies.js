@@ -13,7 +13,7 @@ Template.armies.helpers({
 	}
 });
 
-Template.armies.events({
+Template.armySettings.events({
 	'change #army': function (event) {
 		Player().armyBook(event.target.value);
 	},
@@ -28,6 +28,9 @@ Template.armies.events({
 	'dragover #dropzone': prevent,
 	'drop #dropzone': function (e) {
 		prevent(e);
+		var player = Player();
+		var setIcon = player.icon.bind(player);
+		var trans = $('input:radio[name="transparency"]:checked').val();
 		if (e.dataTransfer.files.length) {
 			var file = e.dataTransfer.files[0],
 					reader = new FileReader();
@@ -36,10 +39,10 @@ Template.armies.events({
 				var data = reader.result,
 						parsedData = /^data:([^;]*);base64,(.*)$/.exec(data),
 						mimeType = parsedData[1]
-						;
-
+				;
+				
 				if (mimeType.match(/^image\/\w+$/)) {
-					Player().icon(data);
+					Icon.fromUrl(data, trans, setIcon);
 				}
 			};
 
@@ -47,21 +50,17 @@ Template.armies.events({
 		} else {
 			var data = e.dataTransfer.getData('text/html');
 			if (data) {
-				Icon.fromImage($(data).get(1), function (data) {
-					Player().icon(data);
-				});
+				Icon.fromImage($(data).get(1), trans, setIcon);
 			}
 		}
-	}
-});
-
-Template.armySettings.events({
+	},
 	'click #createPlayer': function () {
 		Player().create();
 	},
 	'change #uploadIcon > input': function () {
 		var formData = new FormData($('form')[0]),
 				progressHandlingFunction = function () {};
+		var trans = $('input:radio[name="transparency"]:checked').val();
 
 		$.ajax({
 			url: 'https://api.imgur.com/3/image',
@@ -79,10 +78,8 @@ Template.armySettings.events({
 			},
 			//beforeSend: beforeSendHandler,
 			success: function (result) {
-				//Icon.fromUrl(result.data.link, function (data) {
-				var data = result.data.link;
-				Player().icon(data);
-				//});
+				var player = Player();
+				Icon.fromUrl(result.data.link, trans, player.icon.bind(player));
 			},
 			//error: errorHandler,
 			data: formData,
@@ -90,6 +87,8 @@ Template.armySettings.events({
 			contentType: false,
 			processData: false
 		});
+	},
+	'change input:radio[name="transparency"]': function () {
 	}
 });
 
@@ -111,6 +110,9 @@ Template.armySettings.helpers({
 	},
 	icon: function () {
 		return Player().icon();
+	},
+	roundZero: function () {
+		return !Round.number();
 	}
 });
 

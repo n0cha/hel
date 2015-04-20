@@ -69,6 +69,13 @@
 					<input name="image" type="file" />
 				</form>
 			</div>
+			<div>
+				<label>Transparency:</label>
+				<input id="transAuto" type="radio" name="transparency" value="auto" checked><label for="transAuto">auto</label>
+				<input id="transWhite" type="radio" name="transparency" value="white"><label for="transWhite">white</label>
+				<input id="transBlack" type="radio" name="transparency" value="black"><label for="transBlack">black</label>
+				<input id="transNone" type="radio" name="transparency" value="none"><label for="transNone">none</label>
+			</div>
 		{{else}}
 			<button id="createPlayer">Create Army</button>
 		{{/if}}

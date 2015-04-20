@@ -1,6 +1,27 @@
 var hexWidth = 60;
 var hexHeight = 45;
 
+var padLeft = function (s) {
+	if (s.length === 1) {
+		s = '0' + s;
+	}
+	return s;
+};
+
+var lighten = function (color) {
+	var rgb = /^#([\da-f]{1,2})([\da-f]{1,2})([\da-f]{1,2})$/.exec(color);
+	var r = '#';
+	
+	_.each(_.range(1, 4), function (i) {
+		if (color.length === 4) {
+			rgb[i] = rgb[i] + rgb[i];
+		}
+		r += padLeft(Math.round((parseInt(rgb[i], 16) + 255) / 2).toString(16));
+	});
+	
+	return r;
+};
+
 Template.game.events({
 	'click #nextRound': function () {
 		rounds.insert({});
@@ -48,7 +69,11 @@ Template.map.helpers({
 	},
 	color: function () {
 		var player = players.findOne({_id: this.owner});
-		return player && player.color || '#fff';
+		var color = player && player.color || '#fff';
+		if (this.owner !== Player().id()) {
+			color = lighten(color);
+		}
+		return color;
 	},
 	anchorX: function () {
 		var y = this.y;

@@ -32,12 +32,11 @@ a:hover {
 }
 
 #header {
-	/*position: fixed;*/
-	/*top: 0;*/
-	/*left: 0;*/
 	width: 100%;
 	background: linear-gradient(#666, #000);
+	/*background: center;*/
 	padding: 10px 0 0;
+	/*height: 140px;*/
 }
 
 #header > h1 {
@@ -57,9 +56,20 @@ a:hover {
 	display: inline-block;
 	list-style-type: none;
 	padding: 0;
-	margin: 10px 0 0;
-	float: left;
-	margin-left: 10px;
+	margin: 10px 0 0 10px;
+	/*float: left;*/
+	/*margin-top: 130px*/
+}
+
+#menu.sticky {
+	position: fixed;
+	top: 0;
+	left: 0;
+	margin: 0;
+	padding-left: 10px;
+	background: #000;
+	width: 100%;
+	display: none;
 }
 
 #menu > li {
@@ -132,7 +142,7 @@ section button {
 	border: 2px solid #666;
 	margin: 0 auto;
 	background: lightblue;
-	background: #f1f1d4;
+	/*background: #f1f1d4;*/
 	padding: 10px;
 	border-radius: 10px;
 	max-width: 100%;
@@ -145,7 +155,7 @@ section button {
 }
 
 #map .region {
-	fill-opacity: 0.5;
+	/*fill-opacity: 0.5;*/
 	stroke-width: 1;
 	stroke: #666;
 }
@@ -364,6 +374,7 @@ dd {
 #chatbox {
 	height: 400px;
 	overflow-y: scroll;
+	margin: 5px 0 0;
 }
 
 #chatinput {
@@ -371,7 +382,7 @@ dd {
 	border: 1px solid silver;
 	outline: none;
 	background: #fff;
-	margin-top: -10px
+	margin: 10px 0 0;
 }
 
 .chatTime {
@@ -389,4 +400,12 @@ dd {
 	font-weight: normal;
 	margin-bottom: 5px;
 	display: block;
+}
+
+.chatIcon {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	vertical-align: middle;
+	margin-right: 5px;
 }

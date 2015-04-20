@@ -3,7 +3,7 @@
 		<section>
 			<div id="chatbox">
 				{{#each chatMessages}}
-					<span class="chatUser">{{userName}}</span><span class="chatTime">{{time}}</span>
+					<img class="chatIcon" src="{{icon}}" /><span class="chatUser" style="color: {{color}};">{{userName}}</span><span class="chatTime">{{time}}</span>
 					<span class="chatMessage">{{message}}</span>
 				{{/each}}
 			</div>

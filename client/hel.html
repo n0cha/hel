@@ -27,6 +27,11 @@
 		<li class="{{selected}}"><a id="{{name}}" href="/{{name}}">{{title}}</a></li>
 		{{/each}}
 	</ul>
+	<ul id="menu" class="sticky">
+		{{#each menuItems}}
+			<li class="{{selected}}"><a id="{{name}}" href="/{{name}}">{{title}}</a></li>
+		{{/each}}
+	</ul>	
 </template>
 
 <!-- http://www.gameempire.com/forum/index.php?/topic/6638-the-changes-to-magic-in-the-end-times/page__st__20#entry41175 -->

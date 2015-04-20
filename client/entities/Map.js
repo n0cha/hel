@@ -1,3 +1,5 @@
+var regionsPerPlayer = 10;
+
 Map = {
 	getArea: function (radius) {
 		return _(_.range(1, radius)).reduce(function (m, v) {return m + v;}, 0) * 6 + 1;
@@ -6,11 +8,11 @@ Map = {
 		Meteor.call('clearMap');
 		Meteor.call('clearBattles');
 	},
-	create: function () {
+	create: function (regions) {
 		this.clear();
 
 		var playerCount = players.find().count();
-		var targetArea = playerCount * 5;
+		var targetArea = regions || playerCount * regionsPerPlayer;
 		var radius = 1;
 		while (this.getArea(radius) < targetArea) {
 			radius++;
@@ -18,11 +20,13 @@ Map = {
 		var cols, rows = cols = radius * 2 - 1;
 		_(_.range(0, rows)).each(function (y) {
 			var rowLength = cols - Math.abs(y + 1 - radius);
-			var xOffset = Math.floor((cols - rowLength) / 2);
+			var xOffset = Math.floor((cols - rowLength) / 2) + (y % 2 ? Math.round(cols / 2) % 2 : 0);
 			_(_.range(xOffset, xOffset + rowLength)).each(function (x) {
 				this.insert(x, y);
 			}, this);
 		}, this);
+		
+		return this;
 	},
 	insert: function (x, y) {
 		regions.insert({x: x, y: y, owner: ''});
@@ -49,7 +53,6 @@ Map = {
 	populate: function () {
 		this.depopulate(function () {
 			//var regionsPerPlayer = Math.floor(regions.find().count() / players.find().count());
-			var regionsPerPlayer = 5;
 			var playerIndex = 0;
 			players.find().forEach(function (player) {
 				var id = player._id;
