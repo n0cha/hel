@@ -1,4 +1,4 @@
-var regionsPerPlayer = 10;
+var regionsPerPlayer = 7;
 
 Map = {
 	getArea: function (radius) {
@@ -78,13 +78,13 @@ Map = {
 					var index = Math.round(Math.random() * (candidates.length - 1));
 					var region = candidates[index];
 					regions.update(region._id, {$set: {owner: id}});
-					if (!i) {
+					if (i === regionsPerPlayer - 1) {
 						players.update({_id: id}, {$set: {capital: region._id}});
 					}
 				}, this);
 				playerIndex++;
 			}.bind(this));
-			this.removeUnownedRegions();
+			this.removeUnownedRegions(this.placePortals.bind(this));
 			this.nameRegions();
 		}.bind(this))
 	},
@@ -125,8 +125,8 @@ Map = {
 	getUnownedRegions: function () {
 		return regions.find({owner: ''}).fetch();
 	},
-	removeUnownedRegions: function () {
-		Meteor.call('removeUnownedRegions');
+	removeUnownedRegions: function (callback) {
+		Meteor.call('removeUnownedRegions', callback);
 	},
 	getAdjacentPlayers: function (x, y) {
 		return _.compact(_.uniq(_.pluck(this.getAdjacentRegions(x, y), 'owner')));
@@ -137,5 +137,21 @@ Map = {
 				regions.update(region._id, {$set: {name: names.pop()}});
 			});
 		});
+	},
+	placePortals: function () {
+		var r = regions.find({}, {sort: {x: 1}}).fetch();
+		var xMin = r[0].x;
+		var xMax = r[r.length - 1].x;
+		r = _.sortBy(r, 'y');
+		var yMin = r[0].y;
+		var yMax = r[r.length - 1].y;
+		console.log(xMin, xMax, yMin, yMax);
+	},
+	distance: function (start, dest) {
+		return _.max([
+			Math.abs(dest.y - start.y),
+			Math.abs(Math.ceil(dest.y / -2) + dest.x - Math.ceil(start.y / -2) - start.x),
+			Math.abs(-dest.y - Math.ceil(dest.y / -2) - dest.x + start.y  + Math.ceil(start.y / -2) + start.x)
+		])
 	}
 };

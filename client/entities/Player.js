@@ -1,5 +1,8 @@
 Player = function (playerId) {
-	playerId = playerId || players.findOne({userId: Meteor.userId()})._id;
+	if (!playerId) {
+		var player = players.findOne({userId: Meteor.userId()});
+		playerId = player && playerId;
+	}
 	return {
 		_get: function () {
 			return players.findOne({_id: playerId}) || {};
@@ -83,10 +86,10 @@ Player = function (playerId) {
 			}
 		},
 		status: function () {
-			var player = this._get();
-			if (!player) {
+			if (!playerId) {
 				return Player.STATUS.CREATE;
 			}
+			var player = this._get();
 			if (!player.army) {
 				return Player.STATUS.SELECT;
 			}

@@ -22,6 +22,9 @@ Template.round.helpers({
 					return 'Select an icon';
 			}
 		}
+		if (status === Player.STATUS.CREATE) {
+			return 'You\'re not in the game. You\'ll have to wait till this one\'s over. Sorry.';
+		}
 		if (!Round.started() && status === Player.STATUS.SUBMIT) {
 			return 'Submit your army list' + (Round.number() > 1 ? '. Don\'t forget your ' + (Round.points() / 5) + 'pt mercenary force!' : '');
 		}

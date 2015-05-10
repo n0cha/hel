@@ -43,7 +43,7 @@ Template.menu.rendered = function () {
 		}
 	});
 	
-	//var banner = Math.floor((new Date()).getMinutes() / (60 / nrOfBanners)) + 1;
+	//var banner = Math.floor((new Date()).getMinutes() / (60 / nrOfBanners)) + 2;
 	//$('#header').css({backgroundImage: 'url(images/hel' + banner + '.png)'});
 };
 
