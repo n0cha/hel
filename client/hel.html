@@ -8,38 +8,28 @@
 </body>
 
 <template name="layout">
-	<img id="background" src="images/hel-banner-1.png" />
 	{{> warning}}
-	<div id="header">
-		<img id="fader" src="images/fader.png">
-		<!--<h1>Hilversum Escalation League</h1>-->
-		<!--<h4>A Warhammer Fantasy Battles Campaign</h4>-->
-		{{> loginButtons}}
-		{{> menu}}
-		<div class="pusher"></div>
-	</div>
+	<nav id="login">{{> loginButtons}}</nav>
+	{{> menu}}
+	<header id="banner"><img id="logo" src="images/hel-banner-tekst-1.png" /></header>
 	<div id="content">
 		{{> yield}}
 	</div>
 </template>
 
 <template name="menu">
-	<ul id="menu">
-		{{#each menuItems}}
-		<li class="{{selected}}"><a id="{{name}}" href="/{{name}}">{{title}}</a></li>
-		{{/each}}
-	</ul>
-	<ul id="menu" class="sticky">
-		{{#each menuItems}}
-			<li class="{{selected}}"><a id="{{name}}" href="/{{name}}">{{title}}</a></li>
-		{{/each}}
-	</ul>	
+	<nav id="menu">
+		<ul>
+			{{#each menuItems}}<li class="{{selected}}"><a id="{{name}}" href="/{{name}}">{{title}}</a></li>{{/each}}
+		</ul>
+	</nav>
 </template>
 
 <!-- http://www.gameempire.com/forum/index.php?/topic/6638-the-changes-to-magic-in-the-end-times/page__st__20#entry41175 -->
 
 <template name="warning">
 	{{#if show}}
-		<div id="warning">This website uses HTML5 and therefore its proper operation can't be guaranteed on older browsers. I'm sorry. <a id="closeWarning" href="#">Ok, got it.</a></div>
+		<div id="warning">This website uses HTML5 and CSS3, so it might not work well on older
+			browsers. I'm sorry. <a id="closeWarning" href="#">Ok, got it.</a></div>
 	{{/if}}
 </template>

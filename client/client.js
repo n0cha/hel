@@ -32,14 +32,15 @@ Template.menu.helpers({
 });
 
 Template.menu.rendered = function () {
-	var $stickyMenu = $('#menu.sticky');
+	//var $stickyMenu = $('#menu.sticky');
+	var menuTop = $('#menu').offset().top;
 	$(window).on('scroll', function () {
-		if ($(window).scrollTop() > $('#menu').offset().top) {
-			//$menu.addClass('sticky');
-			$stickyMenu.show();
+		if ($(window).scrollTop() > menuTop) {
+			$(document.body).addClass('sticky');
+			//$stickyMenu.show();
 		} else {
-			//$menu.removeClass('sticky');
-			$stickyMenu.hide();
+			$(document.body).removeClass('sticky');
+			//$stickyMenu.hide();
 		}
 	});
 	
