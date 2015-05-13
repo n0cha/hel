@@ -18,9 +18,10 @@ Map = {
 			radius++;
 		}
 		var cols, rows = cols = radius * 2 - 1;
+		var middleRow = Math.floor(rows / 2);
 		_(_.range(0, rows)).each(function (y) {
 			var rowLength = cols - Math.abs(y + 1 - radius);
-			var xOffset = Math.floor((cols - rowLength) / 2) + (y % 2 ? Math.round(cols / 2) % 2 : 0);
+			var xOffset = Math.max(0, middleRow - y);
 			_(_.range(xOffset, xOffset + rowLength)).each(function (x) {
 				this.insert(x, y);
 			}, this);
@@ -31,21 +32,20 @@ Map = {
 	insert: function (x, y) {
 		regions.insert({x: x, y: y, owner: ''});
 	},
-	getDiameter: function () {
-		return regions.findOne({}, {sort: {x: -1}}).x + 1;
-	},
 	getWidth: function () {
-		return _.map(regions.find().fetch(), function (r) {
-			return (1 - r.y % 2) / 2 + r.x + 1;
-		}).sort().pop();
+		//return regions.findOne({}, {sort: {x: -1}}).x + 1;
+		return _.max(_.map(regions.find().fetch(), function (region) {
+			return region.x + (region.y / 2);
+		})) + 1;
 	},
 	getHeight: function () {
 		return regions.findOne({}, {sort: {y: -1}}).y + 1;
 	},
 	getXMin: function () {
-		return _.map(regions.find().fetch(), function (r) {
-			return (1 - r.y % 2) / 2 + r.x;
-		}).sort().reverse().pop();
+		//return regions.findOne({}, {sort: {x: 1}}).x;
+		return _.min(_.map(regions.find().fetch(), function (region) {
+			return region.x + (region.y / 2);
+		}));
 	},
 	depopulate: function (callback) {
 		Meteor.call('depopulateMap', [], callback);
@@ -75,7 +75,7 @@ Map = {
 						_.defer(this.populate.bind(this));
 						throw new Error('No eligible regions :(');
 					}
-					var index = Math.round(Math.random() * (candidates.length - 1));
+					var index = Math.floor(Math.random() * candidates.length);
 					var region = candidates[index];
 					regions.update(region._id, {$set: {owner: id}});
 					if (i === regionsPerPlayer - 1) {
@@ -101,25 +101,22 @@ Map = {
 		});
 	},
 	getAdjacentOwnedRegions: function (x, y, owner) {
-		var regions = this.getAdjacentRegions(x, y);
-		return _.filter(regions, function (r) {
+		return _.filter(this.getAdjacentRegions(x, y), function (r) {
 			return r.owner === owner;
 		});
 	},
 	getAdjacentRegions: function (x, y) {
-		var regions = [];
-		var offset = (y % 2) * -1;
-		regions.push([x - 1, y]);
-		regions.push([x + 1, y]);
-
-		regions.push([x + offset, y - 1]);
-		regions.push([x + offset + 1, y - 1]);
-
-		regions.push([x + offset, y + 1]);
-		regions.push([x + offset + 1, y + 1]);
-
-		return _.compact(_.map(regions, function (r) {
-			return this.getRegion(r[0], r[1]);
+		var directions = [
+					[1, 0],
+					[1, -1],
+					[0, -1],
+					[-1, 0],
+					[-1, 1],
+					[0, 1]
+				];
+		
+		return _.compact(_.map(directions, function (direction) {
+			return this.getRegion(x + direction[0], y + direction[1]);
 		}, this));
 	},
 	getUnownedRegions: function () {
@@ -139,19 +136,45 @@ Map = {
 		});
 	},
 	placePortals: function () {
-		var r = regions.find({}, {sort: {x: 1}}).fetch();
-		var xMin = r[0].x;
-		var xMax = r[r.length - 1].x;
-		r = _.sortBy(r, 'y');
-		var yMin = r[0].y;
-		var yMax = r[r.length - 1].y;
-		console.log(xMin, xMax, yMin, yMax);
+		var nrOfPortals = players.find().count();
+		var eligibleRegions = regions.find().fetch();
+		var minPortalDistance = Math.ceil(regionsPerPlayer / 2);
+		
+		eligibleRegions = _.filter(eligibleRegions, function (region) {
+			return !players.findOne({capital: region._id});
+		});
+		
+		while (nrOfPortals && eligibleRegions.length) {
+			eligibleRegions = _.filter(eligibleRegions, function (region) {
+				return !_.find(portals.find().fetch(), function (portal) {
+					return this.distance(portal, region) < minPortalDistance;
+				}, this);
+			}, this);
+			
+			if (eligibleRegions.length) {
+				var index = Math.floor(Math.random() * eligibleRegions.length);
+				var region = eligibleRegions[index];
+				portals.insert({x: region.x, y: region.y});
+				eligibleRegions.splice(index, 1);
+				nrOfPortals--;
+			}
+		}
 	},
 	distance: function (start, dest) {
-		return _.max([
-			Math.abs(dest.y - start.y),
-			Math.abs(Math.ceil(dest.y / -2) + dest.x - Math.ceil(start.y / -2) - start.x),
-			Math.abs(-dest.y - Math.ceil(dest.y / -2) - dest.x + start.y  + Math.ceil(start.y / -2) + start.x)
-		])
+		return (Math.abs(start.x - dest.x)
+				+ Math.abs(start.x + start.y - dest.x - dest.y)
+				+ Math.abs(start.y - dest.y)) / 2;
+	},
+	getPortals: function () {
+		return portals.find().fetch();
+	},
+	getRegions: function () {
+		return regions.find().fetch();
+	},
+	getPortalRegions: function () {
+		var portals = this.getPortals();
+		return _.filter(this.getRegions(), function (region) {
+			return _.findWhere(portals, {x: region.x, y: region.y});
+		});
 	}
 };

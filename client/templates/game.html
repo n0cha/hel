@@ -22,30 +22,36 @@
 						<polygon class="region" points="{{points}}" fill="{{color}}" data-id="{{id}}" data-owned="{{owned}}" data-attacking="{{attacking}}">
 							{{#if attacking}}
 								<animate id="animation1"
-												 attributeName="fill-opacity"
-												 from="0.5" to="0.25" dur="1s"
+												 attributeName="fill"
+												 from="{{color}}" to="{{fullColor}}" dur="1s"
 												 begin="0s;animation2.end" />
 								<animate id="animation2"
-												 attributeName="fill-opacity"
-												 from="0.25" to="0.5" dur="1s"
+												 attributeName="fill"
+												 from="{{fullColor}}" to="{{color}}" dur="1s"
 												 begin="animation1.end" />
 								<animate id="animation3"
 												 attributeName="stroke"
-												 from="red" to="pink" dur="1s"
+												 from="green" to="white" dur="1s"
 												 begin="0s;animation4.end" />
 								<animate id="animation4"
 												 attributeName="stroke"
-												 from="pink" to="red" dur="1s"
-												 begin="animation1.end" />
+												 from="white" to="green" dur="1s"
+												 begin="animation3.end" />
 							{{/if}}
 						</polygon>
-						<text x="15" y="30">{{x}},{{y}}</text>
+						<!--<text x="15" y="30">{{x}},{{y}}</text>-->
 						{{#if capital}}
-							<image x="14" y="14" width="32" height="32" xlink:href="{{capital}}" />
+							<image x="14" y="8" width="32" height="32" xlink:href="{{capital}}" />
+						{{/if}}
+						{{#if portal}}
+							<image x="22" y="40" width="16" height="16" xlink:href="images/keystone.png" />
 						{{/if}}
 					</g>
 				{{/each}}
 			</svg>
+			<div id="mapTooltip">
+				{{selectedRegion}}
+			</div>
 		</div></div>
 		{{#if attackRegion}}
 			<div id="attack">

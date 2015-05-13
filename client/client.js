@@ -14,7 +14,7 @@ Accounts.ui.config({
 	passwordSignupFields: "USERNAME_ONLY"
 });
 
-var nrOfBanners = 1;
+var nrOfBanners = 3;
 
 Template.menu.helpers({
 	menuItems: function () {
@@ -46,6 +46,24 @@ Template.menu.rendered = function () {
 	
 	//var banner = Math.floor((new Date()).getMinutes() / (60 / nrOfBanners)) + 2;
 	//$('#header').css({backgroundImage: 'url(images/hel' + banner + '.png)'});
+	var banner = Math.floor(Math.random() * nrOfBanners) + 1;
+	var setBanner = function () {
+		var $banner = $('#banner' + banner);
+		
+		$('.banner').not($banner)
+				.addClass('hidden')
+		;
+		
+		$banner
+				.addClass('animate')
+				.toggleClass('right')
+				.removeClass('hidden')
+		;
+		
+		banner = banner === nrOfBanners ? 1 : banner + 1;
+	};
+	setBanner();
+	setInterval(setBanner, 29000);
 };
 
 Template.warning.helpers({

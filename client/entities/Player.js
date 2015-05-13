@@ -1,7 +1,7 @@
 Player = function (playerId) {
 	if (!playerId) {
 		var player = players.findOne({userId: Meteor.userId()});
-		playerId = player && playerId;
+		playerId = player && player._id;
 	}
 	return {
 		_get: function () {
@@ -36,14 +36,30 @@ Player = function (playerId) {
 			}
 		},
 		regions: function () {
-			return regions.find({owner: this._get()._id}).fetch();
+			return regions.find({owner: playerId}).fetch();
 		},
 		attackableRegions: function () {
-			return _.uniq(_.reduce(this.regions(), function (result, r) {
-				return result.concat(_.pluck(_.filter(Map.getAdjacentRegions(r.x, r.y), function (r) {
+			var playerRegions = this.regions();
+			
+			var attackableRegions = _.reduce(playerRegions, function (result, r) {
+				return result.concat(_.filter(Map.getAdjacentRegions(r.x, r.y), function (r) {
 					return r.owner !== playerId;
-				}), '_id'));
-			}, [], this));
+				}));
+			}, [], this);
+			
+			var portals = Map.getPortals();
+			
+			var ownedPortals = _.filter(portals, function (portal) {
+				return _.findWhere(playerRegions, {x: portal.x, y: portal.y});
+			});
+			
+			if (ownedPortals.length) {
+				attackableRegions = attackableRegions.concat(_.filter(Map.getPortalRegions(), function (region) {
+					return region.owner !== playerId;
+				}));
+			}
+			
+			return _.uniq(_.pluck(attackableRegions, '_id'));
 		},
 		id: function () {
 			return playerId;

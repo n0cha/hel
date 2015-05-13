@@ -49,14 +49,7 @@ Template.map.helpers({
 	},
 	points: function () {
 		var points = [];
-		//var y = this.y;
-		//var x = this.x * hexWidth;
 		var step = hexWidth / 4;
-		//var isEvenRow = !(y % 2);
-		//y *= hexHeight;
-		//if (isEvenRow) {
-		//	x += 2 * step;
-		//}
 
 		points.push([0, step]);
 		points.push([2 * step, 0]);
@@ -68,26 +61,22 @@ Template.map.helpers({
 		return _(points).map(function (p) {return p.join(',');}).join(' ');
 	},
 	color: function () {
-		var player = players.findOne({_id: this.owner});
-		var color = player && player.color || '#fff';
+		var color = Player(this.owner).color();
 		if (this.owner !== Player().id()) {
 			color = lighten(color);
 		}
 		return color;
 	},
+	fullColor: function () {
+		return Player(this.owner).color();
+	},
 	anchorX: function () {
 		var y = this.y;
-		var x = (this.x - Map.getXMin()) * hexWidth;
-		var isEvenRow = !(y % 2);
-		if (isEvenRow) {
-			x += hexWidth / 2;
-		}
-		return x;
+		var x = (this.x - Map.getXMin());
+		return (x + (y / 2)) * hexWidth;
 	},
 	anchorY: function () {
-		var y = this.y;
-		y *= hexHeight;
-		return y/* + hexHeight / 1.5*/;
+		return this.y * hexHeight;
 	},
 	id: function () {
 		return this._id;
@@ -108,6 +97,10 @@ Template.map.helpers({
 		}
 		return player && icon && icon.data;
 	},
+	portal: function () {
+		var portal = portals.findOne({x: this.x, y: this.y});
+		return portal;
+	},
 	attackRegion: function () {
 		return Player().attackedRegion().name;
 	},
@@ -119,10 +112,26 @@ Template.map.helpers({
 	},
 	defenderColor: function () {
 		return Player().attackedPlayer().color();
+	},
+	selectedRegion: function () {
+		var regionId = Session.get('selectedRegion');
+		return regionId && regions.findOne({_id: regionId}).name || '';
 	}
 });
 
 Template.map.rendered = function () {
+	$('#map .region').each(function () {
+		$(this).hover(function () {
+			$('#mapTooltip')
+					.css({top: $(this).position().top + hexHeight, left: $(this).position().left + hexWidth})
+					.show()
+			;
+			Session.set('selectedRegion', $(this).attr('data-id'));
+		}, function () {
+			Session.set('selectedRegion', undefined);
+			$('#mapTooltip').hide();
+		});
+	});
 	if (Player().canAttack()) {
 		_.each(Player().attackableRegions(), function (id) {
 			$('#map .region[data-id="' + id + '"')
@@ -155,12 +164,10 @@ Template.battles.helpers({
 				score: regions.find({owner: id}).count()
 			});
 		};
-		//var i = 0;
 
 		battles.find({round: Round.number()}).forEach(function (b) {
 			if (!_battles[b.region]) {
 				_battles[b.region] = {
-					//number: ++i,
 					regionId: b.region,
 					region: (regions.findOne({_id: b.region}) || {}).name,
 					players: [getPlayer(b.defender, 'defender', b.winner && b.winner === b.defender)],

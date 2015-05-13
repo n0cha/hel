@@ -29,17 +29,52 @@ a:hover {
 }
 
 #content {
-	padding: 10px;
+	padding: 10px 20px;
 	max-width: 960px;
 	margin: 0 auto;
 }
 
-#banner {
-	background: url(images/hel-banner-1.png) center center no-repeat #000;
+#bannerContainer {
+	position: relative;
 	height: 400px;
 	border-bottom: 1px solid #ccc;
-	animation: pan 30s ease-in-out infinite alternate;
-	-webkit-animation: pan 30s ease-in-out infinite alternate;
+}
+
+.banner {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	
+	background: left center no-repeat #000;
+}
+
+.banner.right {
+	background-position: right;
+}
+
+.banner.hidden {
+	opacity: 0;
+	-moz-opacity: 0;
+}
+
+.banner.animate {
+	/*animation: pan 30s ease-in-out infinite alternate;*/
+	/*-webkit-animation: pan 30s ease-in-out infinite alternate;*/
+	-webkit-transition: background-position 30s linear, opacity 1s ease-in-out;
+	-moz-transition: background-position 30s linear, opacity 1s ease-in-out;
+	-o-transition: background-position 30s linear, opacity 1s ease-in-out;
+	transition: background-position 30s linear, opacity 1s ease-in-out;
+}
+
+#banner1 {
+	background-image: url(images/hel-banner-1.png);
+}
+#banner2 {
+	background-image: url(images/hel-banner-2.png);
+}
+#banner3 {
+	background-image: url(images/hel-banner-3.png);
 }
 @keyframes pan {
 	from {background-position-x: left;}
@@ -50,7 +85,7 @@ a:hover {
 	to {background-position-x: right;}
 }
 
-#logo {
+.logo {
 	display: block;
 	margin: 0 auto;
 	position: relative;
@@ -60,28 +95,28 @@ a:hover {
 }
 
 @media screen {
-	#banner {
+	#bannerContainer, .banner {
 		height: 200px;
 	}
-	#logo {
+	.logo {
 		top: 20px;
 		height: 160px;
 	}
 }
 @media screen and (min-height: 900px) {
-	#banner {
+	#bannerContainer, .banner {
 		height: 400px;
 	}
-	#logo {
+	.logo {
 		top: 120px;
 		height: 160px;
 	}
 }
 @media screen and (max-width: 400px) {
-	#banner {
+	#bannerContainer, .banner {
 		height: 100px;
 	}
-	#logo {
+	.logo {
 		top: 10px;
 		height: 80px;
 	}
@@ -121,13 +156,13 @@ body.sticky {
 
 #menu li._selected > a {
 	background: #333;
-	color: #fff;
+	color: gold;
 }
 
 #menu li > a {
 	display: inline-block;
 	width: 80px;
-	color: #ccc;
+	color: goldenrod;
 	text-decoration: none;
 	height: 30px;
 	text-align: center;
@@ -143,12 +178,14 @@ body.sticky {
 section {
 	padding-bottom: 20px;
 	border-bottom: 1px solid #ccc;
-	margin-bottom: 20px;
+	margin-bottom: 10px;
 }
 
-section h3 {
-	margin: 10px 0;
+section h3, h2 {
+	margin: 20px 0 10px;
 	font-size: 150%;
+	color: goldenrod;
+	font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
 }
 
 section h4 {
@@ -178,13 +215,25 @@ section button {
 	width: 100px;
 	display: inline-block;
 	white-space: nowrap;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-width: 1px;
+	height: 24px;
+	background-color: #999;
+	cursor: pointer;
+	color: #333;
+}
+
+section button:hover {
+	background-color: #666;
+	color: gold;
 }
 
 #mapContainer {
 	border: 2px solid #666;
 	margin: 0 auto;
-	background: lightblue;
-	/*background: #f1f1d4;*/
+	background: #532;
 	padding: 10px;
 	border-radius: 10px;
 	max-width: 100%;
@@ -197,7 +246,6 @@ section button {
 }
 
 #map .region {
-	/*fill-opacity: 0.5;*/
 	stroke-width: 1;
 	stroke: #666;
 }
@@ -211,15 +259,29 @@ section button {
 	cursor: pointer;
 }
 
-#map .region[data-attackable]:hover {
+#map .region:hover {
 	stroke: red;
 	stroke-width: 3;
 }
 
+#map .region[data-attackable]:hover {
+	stroke: green;
+}
+
 #map .region[data-attacking="1"] {
 	stroke-width: 3;
-	stroke: red;
-	/*fill-opacity: 1;*/
+	stroke: green;
+}
+
+#mapTooltip {
+	position: absolute;
+	opacity: 0.75;
+	border: 2px solid silver;
+	border-radius: 3px;
+	background: #333;
+	padding: 5px 10px;
+	display: none;
+	color: gold;
 }
 
 .battles th {
@@ -433,7 +495,7 @@ dd {
 .chatTime {
 	font-size: smaller;
 	margin-left: 10px;
-	color: silver;
+	color: #666;
 }
 
 .chatUser {
