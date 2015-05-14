@@ -485,12 +485,22 @@ dd {
 	word-break: break-word;
 }
 
+#chatinputContainer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	background: #333;
+	border-top: 1px solid #666;
+	margin: 0;
+}
+
 #chatinput {
 	resize: none;
 	border: 1px solid silver;
 	outline: none;
 	background: #000;
-	margin: 10px 0 0;
+	margin: 10px 20px;
 }
 
 .chatTime {
