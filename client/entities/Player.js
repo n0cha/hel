@@ -86,6 +86,26 @@ Player = function (playerId) {
 				return this._get().color || '#ffffff';
 			}
 		},
+		lightenedColor: function () {
+			var color = this.color();
+			var rgb = /^#([\da-f]{1,2})([\da-f]{1,2})([\da-f]{1,2})$/.exec(color);
+			var r = '#';
+			var padLeft = function (s) {
+				if (s.length === 1) {
+					s = '0' + s;
+				}
+				return s;
+			};
+
+			_.each(_.range(1, 4), function (i) {
+				if (color.length === 4) {
+					rgb[i] = rgb[i] + rgb[i];
+				}
+				r += padLeft(Math.round((parseInt(rgb[i], 16) + 255) / 2).toString(16));
+			});
+
+			return r;
+		},
 		icon: function (data) {
 			var imageId = this._get().icon;
 			if (data) {

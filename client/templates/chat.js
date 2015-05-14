@@ -13,7 +13,7 @@ Template.chat.helpers({
 		return Meteor.users.findOne({_id: this.userId}).username;
 	},
 	color: function () {
-		return players.findOne({userId: this.userId}).color;
+		return Player(players.findOne({userId: this.userId})._id).lightenedColor();
 	},
 	icon: function () {
 		return Player(players.findOne({userId: this.userId})._id).icon();

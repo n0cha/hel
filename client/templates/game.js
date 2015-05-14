@@ -1,27 +1,6 @@
 var hexWidth = 60;
 var hexHeight = 45;
 
-var padLeft = function (s) {
-	if (s.length === 1) {
-		s = '0' + s;
-	}
-	return s;
-};
-
-var lighten = function (color) {
-	var rgb = /^#([\da-f]{1,2})([\da-f]{1,2})([\da-f]{1,2})$/.exec(color);
-	var r = '#';
-	
-	_.each(_.range(1, 4), function (i) {
-		if (color.length === 4) {
-			rgb[i] = rgb[i] + rgb[i];
-		}
-		r += padLeft(Math.round((parseInt(rgb[i], 16) + 255) / 2).toString(16));
-	});
-	
-	return r;
-};
-
 Template.game.events({
 	'click #nextRound': function () {
 		rounds.insert({});
@@ -61,9 +40,11 @@ Template.map.helpers({
 		return _(points).map(function (p) {return p.join(',');}).join(' ');
 	},
 	color: function () {
-		var color = Player(this.owner).color();
+		var color;
 		if (this.owner !== Player().id()) {
-			color = lighten(color);
+			color = Player(this.owner).lightenedColor();
+		} else {
+			color = Player(this.owner).color();
 		}
 		return color;
 	},
