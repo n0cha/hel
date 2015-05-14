@@ -3,8 +3,8 @@ Template.chat.helpers({
 		var messages = chatMessages.find();
 		messages.observe({
 			added: function () {
-				var $chatbox = $('#chatbox');
-				$chatbox.stop().animate({scrollTop: $chatbox.prop('scrollHeight')}, 500);
+				var $body = $(document.body);
+				$body.stop().animate({scrollTop: $body.prop('scrollHeight')}, 500);
 			}
 		});
 		return messages;
@@ -37,18 +37,19 @@ Template.chat.events({
 });
 
 Template.chat.rendered = function () {
-	var $chatbox = $('#chatbox');
-	var $chatinput = $('#chatinput');
-	var margins = $chatbox.outerHeight(true) - $chatbox.height();
-	var resizeChatbox = function () {
-		$chatbox.height($(window).height() - $chatbox.offset().top - margins - $chatinput.outerHeight(true));
-	}
-	$(window)
-			.on('resize', resizeChatbox)
-			.on('scroll', resizeChatbox)
-	;
-	resizeChatbox();
-
-	$chatbox.stop().animate({scrollTop: $chatbox.prop('scrollHeight')}, 0);
-	$chatinput.focus();
+	//var $chatbox = $('#chatbox');
+	//var $chatinput = $('#chatinput');
+	//var margins = $chatbox.outerHeight(true) - $chatbox.height();
+	//var resizeChatbox = function () {
+	//	$chatbox.height($(window).height() - margins - $('#bannerContainer').offset().top - $chatinput.outerHeight(true));
+	//}
+	//$(window)
+	//		.on('resize', resizeChatbox)
+	//		.on('scroll', resizeChatbox)
+	//;
+	//resizeChatbox();
+	
+	var $body = $(document.body);
+	$body.stop().animate({scrollTop: $body.prop('scrollHeight')}, 0);
+	$('#chatinput').focus();
 };

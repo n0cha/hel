@@ -479,16 +479,17 @@ dd {
 }
 
 #chatbox {
-	height: 400px;
-	overflow-y: scroll;
 	margin: 5px 0 0;
+	overflow: hidden;
+	word-break: break-all;
+	word-break: break-word;
 }
 
 #chatinput {
 	resize: none;
 	border: 1px solid silver;
 	outline: none;
-	background: #fff;
+	background: #000;
 	margin: 10px 0 0;
 }
 
