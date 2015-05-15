@@ -32,20 +32,15 @@ Template.menu.helpers({
 });
 
 Template.menu.rendered = function () {
-	//var $stickyMenu = $('#menu.sticky');
 	var menuTop = $('#menu').offset().top;
 	$(window).on('scroll', function () {
 		if ($(window).scrollTop() > menuTop) {
 			$(document.body).addClass('sticky');
-			//$stickyMenu.show();
 		} else {
 			$(document.body).removeClass('sticky');
-			//$stickyMenu.hide();
 		}
 	});
 	
-	//var banner = Math.floor((new Date()).getMinutes() / (60 / nrOfBanners)) + 2;
-	//$('#header').css({backgroundImage: 'url(images/hel' + banner + '.png)'});
 	var banner = Math.floor(Math.random() * nrOfBanners) + 1;
 	var setBanner = function () {
 		var $banner = $('#banner' + banner);

@@ -132,7 +132,7 @@ a:hover {
 }
 
 body.sticky {
-	padding-top: 42px;
+	padding-top: 33px;
 }
 
 .sticky #menu {
@@ -488,11 +488,12 @@ dd {
 #chatinputContainer {
 	position: fixed;
 	bottom: 0;
-	left: 0;
-	width: 100%;
+	left: 20px;
+	right: 20px;
 	background: #333;
 	border-top: 1px solid #666;
-	margin: 0;
+	margin: 0 auto;
+	max-width: 960px;
 }
 
 #chatinput {
@@ -500,7 +501,7 @@ dd {
 	border: 1px solid silver;
 	outline: none;
 	background: #000;
-	margin: 10px 20px;
+	margin: 10px 0;
 }
 
 .chatTime {

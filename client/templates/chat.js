@@ -20,18 +20,25 @@ Template.chat.helpers({
 	},
 	time: function () {
 		return this.time && moment(this.time).fromNow() || '';
+	},
+	currentMessage: function () {
+		return Session.get('currentChatMessage');
 	}
 });
 
 Template.chat.events({
-	'keypress #chatinput': function (e) {
+	'keyup #chatinput': function (e) {
+		var message = $(e.target).text();
 		if (e.keyCode === 13) {
 			e.preventDefault();
-			var message = $(e.target).text().trim();
+			message = message.trim();
 			if (message) {
 				chatMessages.insert({userId: Meteor.userId(), message: message, time: new Date()});
 			}
 			e.target.innerHTML = '';
+			//Session.set('currentChatMessage', '');
+		} else {
+			//Session.set('currentChatMessage', message);
 		}
 	}
 });
@@ -51,5 +58,8 @@ Template.chat.rendered = function () {
 	
 	var $body = $(document.body);
 	$body.stop().animate({scrollTop: $body.prop('scrollHeight')}, 0);
-	$('#chatinput').focus();
+	$('#chatinput')
+			//.text(Session.get('currentChatMessage'))
+			.focus()
+	;
 };
