@@ -113,16 +113,18 @@ Template.map.rendered = function () {
 			$('#mapTooltip').hide();
 		});
 	});
-	if (Player().canAttack()) {
-		_.each(Player().attackableRegions(), function (id) {
-			$('#map .region[data-id="' + id + '"')
-					.attr('data-attackable', 1)
-					.click(function () {
-						Player().attack(id);
-					})
-			;
-		});
-	}
+	_.defer(function () {
+		if (Player().canAttack()) {
+			_.each(Player().attackableRegions(), function (id) {
+				$('#map .region[data-id="' + id + '"]')
+						.attr('data-attackable', 1)
+						.click(function () {
+							Player().attack(id);
+						})
+				;
+			});
+		}
+	});
 };
 
 Template.battles.events({
