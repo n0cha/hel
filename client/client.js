@@ -14,7 +14,7 @@ Accounts.ui.config({
 	passwordSignupFields: "USERNAME_ONLY"
 });
 
-var nrOfBanners = 3;
+var nrOfBanners = 7;
 
 Template.menu.helpers({
 	menuItems: function () {
@@ -31,7 +31,7 @@ Template.menu.helpers({
 	}
 });
 
-Template.menu.rendered = function () {
+Template.layout.rendered = function () {
 	var menuTop = $('#menu').offset().top;
 	$(window).on('scroll', function () {
 		if ($(window).scrollTop() > menuTop) {
@@ -39,6 +39,11 @@ Template.menu.rendered = function () {
 		} else {
 			$(document.body).removeClass('sticky');
 		}
+	});
+
+	$('.banner').each(function () {
+		var nr = this.id.substr(6);
+		$(this).css({backgroundImage: 'url(images/hel-banner-' + nr + '.png)'});
 	});
 	
 	var banner = Math.floor(Math.random() * nrOfBanners) + 1;
@@ -54,8 +59,14 @@ Template.menu.rendered = function () {
 				.toggleClass('right')
 				.removeClass('hidden')
 		;
-		
-		banner = banner === nrOfBanners ? 1 : banner + 1;
+
+		var newBanner = banner;
+		while (newBanner === banner) {
+			newBanner = Math.floor(Math.random() * nrOfBanners) + 1;
+		}
+		banner = newBanner;
+
+		//banner = banner === nrOfBanners ? 1 : banner + 1;
 	};
 	setBanner();
 	setInterval(setBanner, 29000);

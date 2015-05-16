@@ -67,23 +67,14 @@ a:hover {
 	transition: background-position 30s linear, opacity 1s ease-in-out;
 }
 
-#banner1 {
-	background-image: url(images/hel-banner-1.png);
-}
-#banner2 {
-	background-image: url(images/hel-banner-2.png);
-}
-#banner3 {
-	background-image: url(images/hel-banner-3.png);
-}
-@keyframes pan {
-	from {background-position-x: left;}
-	to {background-position-x: right;}
-}
-@-webkit-keyframes pan {
-	from {background-position-x: left;}
-	to {background-position-x: right;}
-}
+/*@keyframes pan {*/
+	/*from {background-position-x: left;}*/
+	/*to {background-position-x: right;}*/
+/*}*/
+/*@-webkit-keyframes pan {*/
+	/*from {background-position-x: left;}*/
+	/*to {background-position-x: right;}*/
+/*}*/
 
 .logo {
 	display: block;

@@ -20,9 +20,6 @@ Template.chat.helpers({
 	},
 	time: function () {
 		return this.time && moment(this.time).fromNow() || '';
-	},
-	currentMessage: function () {
-		return Session.get('currentChatMessage');
 	}
 });
 
