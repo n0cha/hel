@@ -21,7 +21,7 @@ Template.map.helpers({
 		return (Map.getWidth() - Map.getXMin()) * hexWidth;
 	},
 	height: function () {
-		return Map.getHeight() * hexHeight + hexHeight / 3;
+		return (Map.getHeight() - Map.getYMin()) * hexHeight + hexHeight / 3;
 	},
 	region: function () {
 		return regions.find();
@@ -41,6 +41,9 @@ Template.map.helpers({
 	},
 	color: function () {
 		var color;
+		if (!this.owner) {
+			return;
+		}
 		if (this.owner !== Player().id()) {
 			color = Player(this.owner).lightenedColor();
 		} else {
@@ -57,7 +60,7 @@ Template.map.helpers({
 		return (x + (y / 2)) * hexWidth;
 	},
 	anchorY: function () {
-		return this.y * hexHeight;
+		return (this.y - Map.getYMin()) * hexHeight;
 	},
 	id: function () {
 		return this._id;
@@ -192,5 +195,8 @@ Template.battles.helpers({
 		var player = encodeURIComponent(Meteor.users.findOne({_id: Meteor.userId()}).username);
 		var location = encodeURIComponent('Joost\'s place');
 		return 'http://doodle.com/create?type=date&title=' + title + '&location=' + location + '&description=' + desc + '&name=' + player;
+	},
+	icon: function () {
+		return Player(this._id).icon();
 	}
 });

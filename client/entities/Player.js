@@ -38,14 +38,17 @@ Player = function (playerId) {
 		regions: function () {
 			return regions.find({owner: playerId}).fetch();
 		},
+		adjacentRegions: function () {
+			return _.uniq(_.reduce(this.regions(), function (result, region) {
+				return result.concat(Map.getAdjacentRegions(region.x, region.y).value());
+			}, []));
+		},
 		attackableRegions: function () {
 			var playerRegions = this.regions();
 			
-			var attackableRegions = _.reduce(playerRegions, function (result, r) {
-				return result.concat(_.filter(Map.getAdjacentRegions(r.x, r.y), function (r) {
-					return r.owner !== playerId;
-				}));
-			}, [], this);
+			var attackableRegions = this.adjacentRegions().filter(function (region) {
+				return region.owner !== playerId;
+			});
 			
 			var portals = Map.getPortals();
 			

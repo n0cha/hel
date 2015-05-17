@@ -6,13 +6,12 @@ Map = {
 	},
 	clear: function () {
 		Meteor.call('clearMap');
-		Meteor.call('clearBattles');
 	},
-	create: function (regions) {
+	create: function () {
 		this.clear();
 
 		var playerCount = players.find().count();
-		var targetArea = regions || playerCount * regionsPerPlayer;
+		var targetArea = playerCount * regionsPerPlayer * 3;
 		var radius = 1;
 		while (this.getArea(radius) < targetArea) {
 			radius++;
@@ -26,14 +25,11 @@ Map = {
 				this.insert(x, y);
 			}, this);
 		}, this);
-		
-		return this;
 	},
 	insert: function (x, y) {
 		regions.insert({x: x, y: y, owner: ''});
 	},
 	getWidth: function () {
-		//return regions.findOne({}, {sort: {x: -1}}).x + 1;
 		return _.max(_.map(regions.find().fetch(), function (region) {
 			return region.x + (region.y / 2);
 		})) + 1;
@@ -42,43 +38,57 @@ Map = {
 		return regions.findOne({}, {sort: {y: -1}}).y + 1;
 	},
 	getXMin: function () {
-		//return regions.findOne({}, {sort: {x: 1}}).x;
 		return _.min(_.map(regions.find().fetch(), function (region) {
 			return region.x + (region.y / 2);
 		}));
+	},
+	getYMin: function () {
+		return regions.findOne({}, {sort: {y: 1}}).y;
 	},
 	depopulate: function (callback) {
 		Meteor.call('depopulateMap', [], callback);
 	},
 	populate: function () {
 		this.depopulate(function () {
-			//var regionsPerPlayer = Math.floor(regions.find().count() / players.find().count());
 			var playerIndex = 0;
 			players.find().forEach(function (player) {
 				var id = player._id;
 				id = id._str || id;
-				_(_.range(0, regionsPerPlayer)).each(function (i) {
-					var candidates = this.getUnownedRegions();
-					if (i) {
-						//candidates = _.filter(candidates, function (r) {
-						//	return this.regionAdjacentTo(r.x, r.y, id);
-						//}, this);
-						candidates = _.filter(candidates, function (r) {
-							return this.getAdjacentOwnedRegions(r.x, r.y, id).length >= (i > 3 ? Math.min(i, 2) : 1);
+				_(_.range(0, regionsPerPlayer)).each(function (regionIndex) {
+					var candidates;
+					console.log('[player]', playerIndex, '[region]', regionIndex);
+					if (regionIndex) {
+						// second and other regions
+						// need to border on at least 1 region owned by self
+						// need to border on at least 2 regions owned by any player
+						// except player 0 region 1 (first player, second region), because then there aren't enough regions yet
+						candidates = Player(id).adjacentRegions().filter(function (r) {
+							return !r.owner && this.getAdjacentOwnedRegions(r.x, r.y).value().length >= (!playerIndex && regionIndex === 1 ? 1 : 2);
 						}, this);
-					} else if (playerIndex) {
-						candidates = _.filter(candidates, function (r) {
-							return this.getAdjacentPlayers(r.x, r.y).length >= Math.min(playerIndex, 2);
-						}, this);
+					} else {
+						// first region
+						if (playerIndex) {
+							// second and other players
+							// needs to border on at least 2 players
+							candidates = this.getUnownedRegions();
+							candidates = _.filter(candidates, function (r) {
+								return this.getAdjacentPlayers(r.x, r.y).value().length >= Math.min(playerIndex, 2);
+							}, this);
+						} else {
+							// first player
+							// center of map
+							var center = (this.getHeight() - 1) / 2;
+							candidates = [this.getRegion(center, center)];
+						}
 					}
+					console.log('found', candidates.length, 'candidates');
 					if (!candidates.length) {
 						_.defer(this.populate.bind(this));
 						throw new Error('No eligible regions :(');
 					}
-					var index = Math.floor(Math.random() * candidates.length);
-					var region = candidates[index];
+					var region = _.sample(candidates);
 					regions.update(region._id, {$set: {owner: id}});
-					if (i === regionsPerPlayer - 1) {
+					if (regionIndex === regionsPerPlayer - 1) {
 						players.update({_id: id}, {$set: {capital: region._id}});
 					}
 				}, this);
@@ -95,14 +105,23 @@ Map = {
 		return regions.findOne({x: x, y: y});
 	},
 	regionAdjacentTo: function (x, y, owner) {
-		var regions = this.getAdjacentRegions(x, y);
+		var regions = this.getAdjacentRegions(x, y).value();
 		return !!_.find(regions, function (r) {
 			return r.owner === owner;
 		});
 	},
 	getAdjacentOwnedRegions: function (x, y, owner) {
-		return _.filter(this.getAdjacentRegions(x, y), function (r) {
-			return r.owner === owner;
+		return this.getAdjacentRegions(x, y).filter(function (r) {
+			if (owner) {
+				return r.owner === owner;
+			} else {
+				return !!r.owner;
+			}
+		});
+	},
+	getAdjacentUnownedRegions: function (x, y) {
+		return this.getAdjacentRegions(x, y).filter(function (r) {
+			return !r.owner;
 		});
 	},
 	getAdjacentRegions: function (x, y) {
@@ -115,9 +134,9 @@ Map = {
 					[0, 1]
 				];
 		
-		return _.compact(_.map(directions, function (direction) {
+		return _(directions).map(function (direction) {
 			return this.getRegion(x + direction[0], y + direction[1]);
-		}, this));
+		}, this).compact();
 	},
 	getUnownedRegions: function () {
 		return regions.find({owner: ''}).fetch();
@@ -126,7 +145,7 @@ Map = {
 		Meteor.call('removeUnownedRegions', callback);
 	},
 	getAdjacentPlayers: function (x, y) {
-		return _.compact(_.uniq(_.pluck(this.getAdjacentRegions(x, y), 'owner')));
+		return this.getAdjacentRegions(x, y).pluck('owner').uniq().compact();
 	},
 	nameRegions: function () {
 		Meteor.call('getRegionNames', [regions.find().count()], function (err, names) {

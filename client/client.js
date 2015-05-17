@@ -1,3 +1,5 @@
+_ = lodash;
+
 Router.configure({
 	layoutTemplate: 'layout'
 });

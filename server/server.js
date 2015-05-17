@@ -5,6 +5,8 @@
  * passw0rd
  */
 
+_ = lodash;
+
 Meteor.startup(function () {
 	//[
 	//	{name: 'The Empire'},
@@ -33,6 +35,8 @@ Meteor.startup(function () {
 Meteor.methods({
 	clearMap: function () {
 		regions.remove({});
+		portals.remove({});
+		battles.remove({});
 	},
 	depopulateMap: function () {
 		regions.update({}, {$set: {owner: ''}}, {multi: true});
@@ -65,5 +69,10 @@ Meteor.methods({
 	},
 	setArmyList: function (player, round, list) {
 		armyLists.upsert({player: player, round: round}, {$set: {list: list}});
+	},
+	startGame: function () {
+		Map.create();
+		Map.populate();
+		Round.next();
 	}
 });
