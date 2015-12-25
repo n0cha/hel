@@ -145,11 +145,10 @@ Template.armyList.events({
 
 Template.allArmies.helpers({
 	players: function () {
-		var p = players.find();
-		p.forEach(function (player) {
+		var p = players.find().fetch();
+		_(p).each(function (player) {
 			player.regions = regions.find({owner: player._id}).count();
-		});
-		_.sortByOrder(p, ['regions', 'armyName'], ['desc', 'asc']);
+		}).sortByOrder(['regions', 'armyName'], ['desc', 'asc']).value();
 		return p;
 	},
 	icon: function () {
