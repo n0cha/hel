@@ -13,7 +13,6 @@ http
 mrt:bootstrap-colorpicker-2
 mrt:cookies
 momentjs:moment
-alethes:lodash
 standard-minifiers
 meteor-base
 mobile-experience
@@ -28,3 +27,4 @@ random
 ejson
 spacebars
 check
+erasaur:meteor-lodash
