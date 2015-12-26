@@ -146,9 +146,10 @@ Template.armyList.events({
 Template.allArmies.helpers({
 	players: function () {
 		var p = players.find().fetch();
-		_(p).each(function (player) {
+		_.each(p, function (player) {
 			player.regions = regions.find({owner: player._id}).count();
-		}).sortByOrder(['regions', 'armyName'], ['desc', 'asc']).value();
+		});
+		p = _.sortByOrder(p, ['regions', 'armyName'], ['desc', 'asc']);
 		return p;
 	},
 	icon: function () {
@@ -156,9 +157,6 @@ Template.allArmies.helpers({
 	},
 	me: function () {
 		return this._id === Player().id() ? 'me' : '';
-	},
-	regions: function () {
-		return regions.find({owner: this._id}).count();
 	},
 	started: function () {
 		return Round.started();
